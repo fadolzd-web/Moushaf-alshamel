@@ -21,7 +21,7 @@ jobs:
           if [ -d "WWW" ]; then mv WWW www; fi
           mkdir -p www
           if [ -f "index.html" ] && [ ! -f "www/index.html" ]; then cp index.html www/index.html; fi
-          echo '{"appId":"com.mushaf.luxury","appName":"المصحف الفاخر","webDir":"www","plugins":{"LocalNotifications":{"smallIcon":"ic_launcher","iconColor":"#1A3C2A"}}}' > capacitor.config.json
+          echo '{"appId":"com.mushaf.luxury","appName":"مصحفي","webDir":"www","plugins":{"LocalNotifications":{"smallIcon":"ic_launcher","iconColor":"#1A3C2A"}}}' > capacitor.config.json
           ls www/
       - run: npm install
       - run: npx cap add android || true
