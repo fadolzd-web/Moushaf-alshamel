@@ -17263,38 +17263,11 @@ try{
   }
 
   // تحميل بدون CORS - نفس طريقة مشغل المصحف الأصلي - WebView safe
-  function fetchAudioBlob(url){
-    return new Promise(function(resolve, reject){
-      // محاولة 1: fetch عادي مع force-cache (يعمل في معظم المتصفحات)
-      fetch(url, {cache:'force-cache', mode:'cors'}).then(function(res){
-        if(!res.ok) throw new Error('http '+res.status);
-        return res.blob();
-      }).then(function(blob){
-        if(blob.size<800) throw new Error('صغير');
-        resolve(blob);
-      }).catch(function(e1){
-        // محاولة 2: XHR مع arraybuffer - يتجاوز CORS في WebView content://
-        try{
-          var xhr=new XMLHttpRequest();
-          xhr.open('GET', url, true);
-          xhr.responseType='blob';
-          xhr.timeout=15000;
-          xhr.onload=function(){
-            if(xhr.status===200 && xhr.response){
-              var b=xhr.response;
-              if(b.size>800) resolve(b);
-              else reject(new Error('ملف صغير XHR'));
-            } else {
-              reject(new Error('XHR '+xhr.status));
-            }
-          };
-          xhr.onerror=function(){ reject(e1); };
-          xhr.ontimeout=function(){ reject(new Error('انتهى الوقت')); };
-          xhr.send();
-        }catch(e){ reject(e1); }
-      });
-    });
-  }
+  function base64ToBlob(b64){ var bin=atob(b64), len=bin.length, bytes=new Uint8Array(len); for(var i=0;i<len;i++) bytes[i]=bin.charCodeAt(i); return new Blob([bytes], {type:'audio/mpeg'}); }
+  function tryNativeBridge(url, resolve, reject, prev){ if(window.AndroidDownloader){ var id='dl_'+Date.now(); var st=Date.now(), tid; window.onNativeDownload=function(dlId, b64){ if(dlId==id){ cancelAnimationFrame(tid); var blob=base64ToBlob(b64); if(blob.size>800) resolve(blob); else reject(new Error('صغير من الجسر')); } }; var check=function(){ if(Date.now()-st>30000) reject(prev); else tid=requestAnimationFrame(check); }; tid=requestAnimationFrame(check); window.AndroidDownloader.downloadFile(url, id); } else reject(prev); }
+  function ensurePersistentStorage(){ try{ if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().then(function(p){ console.log('persistent:', p); }); } }catch(e){} }
+  ensurePersistentStorage();
+  function fetchAudioBlob(url){ return new Promise(function(resolve, reject){ fetch(url, {cache:'force-cache'}).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.blob(); }).then(function(b){ if(b.size>800) resolve(b); else throw new Error('صغير'); }).catch(function(e1){ var xhr=new XMLHttpRequest(); xhr.open('GET', url, true); xhr.responseType='blob'; xhr.timeout=20000; xhr.onload=function(){ if(xhr.status==200 && xhr.response && xhr.response.size>800) resolve(xhr.response); else tryNativeBridge(url, resolve, reject, e1); }; xhr.onerror=function(){ tryNativeBridge(url, resolve, reject, e1); }; xhr.ontimeout=function(){ tryNativeBridge(url, resolve, reject, e1); }; xhr.send(); }); }); }
 
   function render(){
     var root=document.getElementById('pro-audio-root'); if(!root) return;
