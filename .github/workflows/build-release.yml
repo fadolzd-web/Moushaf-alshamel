@@ -21,7 +21,7 @@ jobs:
           if [ -d "WWW" ]; then mv WWW www; fi
           mkdir -p www
           if [ -f "index.html" ] && [ ! -f "www/index.html" ]; then cp index.html www/index.html; fi
-          echo '{"appId":"com.mushaf.luxury","appName":"مصحفي","webDir":"www","plugins":{"LocalNotifications":{"smallIcon":"ic_launcher","iconColor":"#1A3C2A"}}}' > capacitor.config.json
+          echo '{"appId":"com.mushaf.luxury","appName":"مصحفي","webDir":"www","plugins":{"LocalNotifications":{"smallIcon":"ic_launcher","iconColor":"#1A3C2A"},"CapacitorHttp":{"enabled":true}}}' > capacitor.config.json
           ls www/
       - run: npm install
       - run: npx cap add android || true
@@ -30,9 +30,7 @@ jobs:
         run: |
           if [ -f "ic_launcher.png" ]; then
             echo "Installing custom icon..."
-            # احذف الأيقونات المتضاربة اللي بتعمل Duplicate
             rm -rf android/app/src/main/res/mipmap-anydpi-v26
-            # انسخ أيقونتك لكل المقاسات
             for size in hdpi mdpi xhdpi xxhdpi xxxhdpi; do
               if [ -d "android/app/src/main/res/mipmap-$size" ]; then
                 cp ic_launcher.png android/app/src/main/res/mipmap-$size/ic_launcher.png
@@ -79,3 +77,4 @@ jobs:
         with:
           name: APK-موقع-نهائي
           path: android/app/build/outputs/apk/release/app-release.apk
+          
