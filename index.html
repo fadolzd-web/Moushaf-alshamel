@@ -17339,6 +17339,42 @@ function setPillAyah(text, isName){
   var SA=[0,7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
   var SN=["","الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
   var audioPreview=null; var isDownloading=false; var isPaused=false; var downloadPaused=false; var currentDownloadInfo=null; var downloadQueue=[]; var failedList=[];
+  var currentResumeFn=null;
+  // نوافذ جميلة بدل alert/confirm البشعة: زرها "موافق" بالفصحى، وترجع Promise.
+  function proDialog(msg, isConfirm){
+    return new Promise(function(resolve){
+      try{
+        var old=document.getElementById('pro-dialog-overlay'); if(old) old.remove();
+        var overlay=document.createElement('div'); overlay.id='pro-dialog-overlay';
+        overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100000;padding:20px;direction:rtl';
+        var card=document.createElement('div');
+        card.style.cssText='background:#fff;border-radius:22px;max-width:360px;width:100%;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.3);font-family:inherit';
+        var head=document.createElement('div');
+        head.style.cssText='background:linear-gradient(135deg,#0F3D2E,#D4AF37);padding:16px 18px;text-align:center;color:#fff;font-weight:800;font-size:15px';
+        head.textContent='مصحفي';
+        var body=document.createElement('div');
+        body.style.cssText='padding:20px 18px;text-align:center;font-size:14px;line-height:1.9;color:#1A1A1A';
+        body.textContent=msg;
+        var foot=document.createElement('div');
+        foot.style.cssText='padding:0 16px 16px;display:flex;gap:10px';
+        var ok=document.createElement('button'); ok.type='button'; ok.textContent='موافق';
+        ok.style.cssText='flex:1;padding:13px;border-radius:13px;background:#0F3D2E;color:#D4AF37;border:none;font-size:14px;font-weight:800;cursor:pointer';
+        ok.onclick=function(){ overlay.remove(); resolve(true); };
+        foot.appendChild(ok);
+        if(isConfirm){
+          var cancel=document.createElement('button'); cancel.type='button'; cancel.textContent='إلغاء';
+          cancel.style.cssText='flex:1;padding:13px;border-radius:13px;background:#fff;color:#333;border:1px solid rgba(0,0,0,0.12);font-size:14px;font-weight:700;cursor:pointer';
+          cancel.onclick=function(){ overlay.remove(); resolve(false); };
+          foot.appendChild(cancel);
+        }
+        card.appendChild(head); card.appendChild(body); card.appendChild(foot);
+        overlay.appendChild(card); document.body.appendChild(overlay);
+        overlay.onclick=function(e){ if(e.target===overlay){ overlay.remove(); resolve(false); } };
+      }catch(e){ resolve(isConfirm?false:true); }
+    });
+  }
+  function proAlert(msg){ return proDialog(msg, false); }
+  function proConfirm(msg){ return proDialog(msg, true); }
 
   function fetchAudioBlob(url){ return new Promise(function(resolve, reject){
     // تحويل واحد لكل أشكال رد CapacitorHttp: ArrayBuffer / Uint8Array / base64 string / data: URL
@@ -17446,9 +17482,9 @@ function setPillAyah(text, isName){
       var mode=getWifiMode(); if(mode==='off'){ resolve(true); return; }
       getNetworkType().then(function(t){
         if(t!=='cellular'){ resolve(true); return; }
-        if(mode==='block'){ alert('التحميل متوقف: أنت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أو غيّر الوضع من الإعدادات'); resolve(false); return; }
-        // warn
-        resolve(!!confirm('أنت على بيانات الهاتف، والوضع هو "تحذير". هل تريد المتابعة على بيانات الهاتف؟'));
+        if(mode==='block'){ proAlert('التحميل متوقف: أنت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أو غيّر الوضع من الإعدادات').then(function(){ resolve(false); }); return; }
+        // warn: قبولك هنا ينحفظ، فلا يوقف التحميل بعدها من جديد
+        proConfirm('أنت على بيانات الهاتف، والوضع هو "تحذير". هل تريد المتابعة على بيانات الهاتف؟').then(function(ok){ if(ok) wifiWarnAccepted=true; resolve(!!ok); });
       }).catch(function(){ resolve(true); });
     });
   }
@@ -17510,24 +17546,28 @@ function setPillAyah(text, isName){
     var pauseBtn=document.getElementById('pro-pause-btn'); if(pauseBtn) pauseBtn.onclick=function(){ downloadPaused=true; isPaused=true; var resumeBtn=document.getElementById('pro-resume-btn'); if(resumeBtn) resumeBtn.style.display=''; pauseBtn.style.display='none'; };
     var resumeBtn=document.getElementById('pro-resume-btn'); if(resumeBtn) resumeBtn.onclick=function(){
       // متابعة واعية بالواي فاي: إذا الإيقاف كان بسبب انقطاع WiFi، لازم نفحص قبل ما نكمّل.
+      function doResume(){
+        wifiPaused=false; downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display='';
+        if(downloadQueue.length>0 && currentResumeFn) requestAnimationFrame(currentResumeFn);
+      }
       if(wifiPaused){
         getNetworkType().then(function(t){
           var mode=getWifiMode();
-          if(t==='cellular' && mode==='block'){ alert('ما زلت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أولاً'); return; }
-          if(t==='cellular' && mode==='warn'){ if(!confirm('أنت على بيانات الهاتف. هل تريد المتابعة على بيانات الهاتف؟')) return; wifiWarnAccepted=true; }
-          wifiPaused=false; downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue);
+          if(t==='cellular' && mode==='block'){ proAlert('ما زلت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أولاً'); return; }
+          if(t==='cellular' && mode==='warn'){ proConfirm('أنت على بيانات الهاتف. هل تريد المتابعة على بيانات الهاتف؟').then(function(ok){ if(!ok) return; wifiWarnAccepted=true; doResume(); }); return; }
+          doResume();
         });
         return;
       }
-      downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue); };
-    var cancelBtn=document.getElementById('pro-cancel-btn'); if(cancelBtn) cancelBtn.onclick=function(){ isPaused=true; downloadPaused=false; wifiPaused=false; wifiWarnAccepted=false; isDownloading=false; hideCurrentDownload(); downloadQueue=[]; alert('تم الإلغاء'); };
+      doResume(); };
+    var cancelBtn=document.getElementById('pro-cancel-btn'); if(cancelBtn) cancelBtn.onclick=function(){ isPaused=true; downloadPaused=false; wifiPaused=false; wifiWarnAccepted=false; isDownloading=false; currentResumeFn=null; hideCurrentDownload(); downloadQueue=[]; proAlert('تم الإلغاء'); };
     var settingsBtn=document.getElementById('pro-audio-settings-toggle'); if(settingsBtn) settingsBtn.onclick=function(){ var sec=document.getElementById('pro-audio-secondary'); if(sec){ var open=sec.style.display==='flex'; sec.style.display=open?'none':'flex'; } };
     var wifiBtn=document.getElementById('pro-wifi-toggle'); if(wifiBtn) wifiBtn.onclick=function(){ cycleWifiMode(); };
     document.querySelectorAll('.pro-preview').forEach(function(btn){ btn.onclick=function(){ previewReciter(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-reciter-settings').forEach(function(btn){ btn.onclick=function(){ var f=btn.getAttribute('data-folder'); var target=document.querySelector('.pro-reciter-options[data-folder="'+f+'"]'); if(!target) return; var wasOpen=target.style.display==='flex'; document.querySelectorAll('.pro-reciter-options').forEach(function(o){ o.style.display='none'; }); if(!wasOpen) target.style.display='flex'; }; });
     document.querySelectorAll('.pro-dl-surah').forEach(function(btn){ btn.onclick=function(){ showSurahModal(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-dl-juz').forEach(function(btn){ btn.onclick=function(){ showJuzModal(btn.getAttribute('data-folder')); }; });
-    document.querySelectorAll('.pro-dl-full').forEach(function(btn){ btn.onclick=function(){ if(confirm('تحميل المصحف كامل 6236 آية؟')) downloadFull(btn.getAttribute('data-folder')); }; });
+    document.querySelectorAll('.pro-dl-full').forEach(function(btn){ btn.onclick=function(){ proConfirm('تحميل المصحف كامل 6236 آية؟').then(function(ok){ if(ok) downloadFull(btn.getAttribute('data-folder')); }); }; });
     document.querySelectorAll('.pro-del').forEach(function(btn){ btn.onclick=function(){ deleteReciter(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-edit').forEach(function(btn){ btn.onclick=function(){ editCustom(btn.getAttribute('data-folder')); }; });
   }
@@ -17602,7 +17642,7 @@ function setPillAyah(text, isName){
     };
     card.querySelector('#pro-surah-download').onclick=function(){
       var sel=[]; Object.keys(selected).forEach(function(k){ if(selected[k]) sel.push(parseInt(k)); });
-      if(sel.length===0){ alert('اختر سورة'); return; }
+      if(sel.length===0){ proAlert('اختر سورة'); return; }
       modal.remove(); downloadSurahs(folder,sel);
     };
     renderPage();
@@ -17616,7 +17656,7 @@ function setPillAyah(text, isName){
     html+='</div></div><div style="padding:14px;display:flex;gap:10px"><button type="button" id="pro-juz-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">إلغاء</button><button type="button" id="pro-juz-download" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">تحميل</button></div>';
     card.innerHTML=html; modal.appendChild(card); document.body.appendChild(modal);
     card.querySelector('#pro-modal-close').onclick=function(){ modal.remove(); }; card.querySelector('#pro-juz-cancel').onclick=function(){ modal.remove(); };
-    card.querySelector('#pro-juz-download').onclick=function(){ var selected=[]; modal.querySelectorAll('.pro-juz-cb:checked').forEach(function(cb){ selected.push(parseInt(cb.value)); }); if(selected.length===0){ alert('اختر جزء'); return; } modal.remove(); downloadJuzs(folder,selected); };
+    card.querySelector('#pro-juz-download').onclick=function(){ var selected=[]; modal.querySelectorAll('.pro-juz-cb:checked').forEach(function(cb){ selected.push(parseInt(cb.value)); }); if(selected.length===0){ proAlert('اختر جزء'); return; } modal.remove(); downloadJuzs(folder,selected); };
   }
   function downloadSurahs(folder, surahs){ var ayahs=[]; surahs.forEach(function(s){ for(var a=1;a<=SA[s];a++) ayahs.push({s:s,a:a}); }); downloadAyahs(folder, ayahs, 'سورة '+surahs.map(function(s){return SN[s];}).join('، '), 'surah', surahs.join(',')); }
   function downloadJuzs(folder, juzs){
@@ -17625,14 +17665,16 @@ function setPillAyah(text, isName){
   }
   function downloadFull(folder){ var ayahs=[]; for(var s=1;s<=114;s++){ for(var a=1;a<=SA[s];a++) ayahs.push({s:s,a:a}); } downloadAyahs(folder, ayahs, 'المصحف كامل', 'full', 'all'); }
   function downloadAyahs(folder, ayahs, label, type, num){
-    if(isDownloading){ alert('يوجد تحميل جار - اضغط إلغاء أولا'); return; }
+    if(isDownloading){ proAlert('يوجد تحميل جار - اضغط إلغاء أولا'); return; }
+    wifiWarnAccepted=false; wifiPaused=false;
     checkWifiBeforeStart().then(function(allowed){ if(!allowed) return; startDownload(); });
     function startDownload(){
-    wifiWarnAccepted=false; wifiPaused=false;
+    wifiPaused=false;
     isDownloading=true; isPaused=false; downloadPaused=false; var total=ayahs.length; var done=0; var totalSize=0; failedList=[];
     var progressBar=document.getElementById('pro-progress-'+folder); var countEl=document.querySelector('.pro-count[data-folder="'+folder+'"]');
     downloadQueue=ayahs.slice();
     currentDownloadInfo={text: label, done:0, total:total, detail:'بدء التحميل...'}; showCurrentDownload(currentDownloadInfo);
+    currentResumeFn=processQueue;
     requestAnimationFrame(processQueue);
     function processQueue(){
       if(isPaused || downloadPaused){
@@ -17640,7 +17682,7 @@ function setPillAyah(text, isName){
         isDownloading=false; hideCurrentDownload(); updateCount(folder); return;
       }
       if(downloadQueue.length===0){
-        isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); updateCount(folder); if(failedList.length>0) alert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else alert('تم التحميل: '+done+' آية - الحمد لله');
+        isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); updateCount(folder); currentResumeFn=null; if(failedList.length>0) proAlert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else proAlert('تم التحميل: '+done+' آية - الحمد لله');
         return;
       }
       // فحص WiFi قبل كل دفعة: إذا انقطع اتصال WiFi، إيقاف مؤقت بدون خسارة أي آية.
@@ -17731,7 +17773,7 @@ function setPillAyah(text, isName){
     try{ updateCount(origFolder); }catch(e){}
     if(!removeFromList){
       try{ render(); }catch(e){}
-      try{ if(window.showToast) showToast('تم حذف تحميلات '+origFolder); else alert('تم حذف التحميلات'); }catch(e){}
+      try{ if(window.showToast) showToast('تم حذف تحميلات '+origFolder); else proAlert('تم حذف التحميلات'); }catch(e){}
       return;
     }
     try{
@@ -17742,7 +17784,7 @@ function setPillAyah(text, isName){
       try{ var curDef=low(localStorage.getItem('quran_reciter_default')||''); if(curDef===lf){ localStorage.setItem('quran_reciter_default','addel'); if(window.LuxPill && window.LuxPill.selectReciter){ try{ window.LuxPill.selectReciter('addel','عادل الكربلائي'); }catch(e){} } } }catch(e){}
     }catch(e){}
     try{ render(); }catch(e){}
-    try{ if(window.showToast) showToast('تم حذف '+origFolder+' نهائياً \u2715'); else alert('تم حذف '+origFolder+' نهائياً \u2715'); }catch(e){}
+    try{ if(window.showToast) showToast('تم حذف '+origFolder+' نهائياً \u2715'); else proAlert('تم حذف '+origFolder+' نهائياً \u2715'); }catch(e){}
   }
   function addCustom(){
     var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
@@ -17774,11 +17816,11 @@ function setPillAyah(text, isName){
       var urlInput=card.querySelector('#pro-custom-url'); var url=urlInput? urlInput.value.trim() : '';
       if(currentTab==='any'){
         if(!folder){ folder=folderFromUrl(url) || low(name).replace(/[^a-z0-9_-]/g,'') || 'custom_'+Date.now(); }
-        if(!url){ alert('ضع رابط الموقع'); return; }
+        if(!url){ proAlert('ضع رابط الموقع'); return; }
       }
-      if(!name||!folder){ alert('مطلوب'); return; }
-      if(!/^[a-z0-9_-]+$/.test(low(folder))){ alert('المجلد: انجليزي وأرقام و - _ فقط'); return; }
-      try{ var raw=localStorage.getItem('quran_reciters_custom'); var arr=raw?JSON.parse(raw):[]; if(arr.some(function(r){return low(r.folder)===low(folder);})){ alert('موجود'); return; } arr.push({name:name,folder:folder,url:url}); localStorage.setItem('quran_reciters_custom', JSON.stringify(arr)); }catch(e){}
+      if(!name||!folder){ proAlert('مطلوب'); return; }
+      if(!/^[a-z0-9_-]+$/.test(low(folder))){ proAlert('المجلد: انجليزي وأرقام و - _ فقط'); return; }
+      try{ var raw=localStorage.getItem('quran_reciters_custom'); var arr=raw?JSON.parse(raw):[]; if(arr.some(function(r){return low(r.folder)===low(folder);})){ proAlert('موجود'); return; } arr.push({name:name,folder:folder,url:url}); localStorage.setItem('quran_reciters_custom', JSON.stringify(arr)); }catch(e){}
       modal.remove(); render();
     };
   }
@@ -17792,8 +17834,8 @@ function setPillAyah(text, isName){
       card.querySelector('#pro-custom-save').onclick=function(){ item.name=card.querySelector('#pro-custom-name').value.trim(); item.folder=card.querySelector('#pro-custom-folder').value.trim(); item.url=card.querySelector('#pro-custom-url').value.trim(); localStorage.setItem('quran_reciters_custom', JSON.stringify(arr)); modal.remove(); render(); };
     }catch(e){}
   }
-  function exportList(){ try{ var raw=localStorage.getItem('quran_reciters_custom')||'[]'; var blob=new Blob([raw],{type:'application/json'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='my-reciters-'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(url); }catch(e){ alert('فشل'); } }
-  function importList(){ var input=document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=function(e){ var file=e.target.files[0]; if(!file) return; var reader=new FileReader(); reader.onload=function(ev){ try{ var arr=JSON.parse(ev.target.result); if(!Array.isArray(arr)) throw new Error(); var raw=localStorage.getItem('quran_reciters_custom'); var existing=raw?JSON.parse(raw):[]; var added=0; arr.forEach(function(r){ if(r.name&&r.folder && !existing.some(function(ex){return low(ex.folder)===low(r.folder);})){ existing.push(r); added++; } }); localStorage.setItem('quran_reciters_custom', JSON.stringify(existing)); render(); alert('تم '+added); }catch(err){ alert('غير صالح'); } }; reader.readAsText(file); }; input.click(); }
+  function exportList(){ try{ var raw=localStorage.getItem('quran_reciters_custom')||'[]'; var blob=new Blob([raw],{type:'application/json'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='my-reciters-'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(url); }catch(e){ proAlert('فشل'); } }
+  function importList(){ var input=document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=function(e){ var file=e.target.files[0]; if(!file) return; var reader=new FileReader(); reader.onload=function(ev){ try{ var arr=JSON.parse(ev.target.result); if(!Array.isArray(arr)) throw new Error(); var raw=localStorage.getItem('quran_reciters_custom'); var existing=raw?JSON.parse(raw):[]; var added=0; arr.forEach(function(r){ if(r.name&&r.folder && !existing.some(function(ex){return low(ex.folder)===low(r.folder);})){ existing.push(r); added++; } }); localStorage.setItem('quran_reciters_custom', JSON.stringify(existing)); render(); proAlert('تم '+added); }catch(err){ proAlert('غير صالح'); } }; reader.readAsText(file); }; input.click(); }
 
 
   // إصلاح أداة الصوت - بدون كسر SM.toggle - كود نظيف
