@@ -16711,7 +16711,10 @@ try{
 #luxury-pill-play{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g-border,#D4AF37),var(--g-basmala,#B8962E));border:1.5px solid color-mix(in srgb, var(--g-border) 40%, transparent);color:var(--g-card,#0F3D2E);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 4px 12px color-mix(in srgb, var(--g-border) 35%, transparent);cursor:pointer;}
 #luxury-pill-info{flex:1;min-width:0;text-align:right;}
 #luxury-pill-surah{font-family:'Amiri',serif;font-weight:800;font-size:12.5px;color:var(--g-text,#1A1A1A);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;}
-#luxury-pill-ayah{font-size:10px;opacity:0.7;color:var(--g-text,#1A1A1A);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#luxury-pill-ayah{font-size:10px;opacity:0.7;color:var(--g-text,#1A1A1A);margin-top:2px;white-space:nowrap;overflow:hidden;direction:rtl;}
+#luxury-pill-ayah-text{display:inline-block;white-space:nowrap;will-change:transform;}
+#luxury-pill-ayah-text.lux-marquee{animation:lux-marquee 7s ease-in-out 0.8s infinite alternate;}
+@keyframes lux-marquee{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--lux-shift,0px))}}
 #luxury-pill-actions{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .pill-btn{width:31px;height:31px;border-radius:50%;border:1px solid color-mix(in srgb, var(--g-border) 35%, transparent);background:color-mix(in srgb, var(--g-bg,#FFFBEB) 85%, transparent);color:var(--g-text);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;backdrop-filter:blur(8px);}
 #luxury-pill-expand{width:100%;display:none;flex-direction:column;gap:8px;padding:10px 12px 12px;border-top:1px solid color-mix(in srgb, var(--g-border) 18%, transparent);margin-top:2px;background:color-mix(in srgb, var(--g-bg) 45%, transparent);}
@@ -16747,7 +16750,7 @@ try{
 <div id="luxury-pill-main">
 <div id="luxury-pill-left">
 <button id="luxury-pill-play">▶</button>
-<div id="luxury-pill-info"><div id="luxury-pill-surah">سورة الفلق</div><div id="luxury-pill-ayah">آية 2 من 5 • عادل</div></div>
+<div id="luxury-pill-info"><div id="luxury-pill-surah">سورة الفلق</div><div id="luxury-pill-ayah"><span id="luxury-pill-ayah-text">عادل الكربلائي</span></div></div>
 </div>
 <div id="luxury-pill-always" style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin:0 6px">
 <button class="pill-toggle" id="luxury-pill-repeat-ayah" style="padding:4px 8px;font-size:10px;border-radius:999px">🔁 آية</button>
@@ -16845,6 +16848,26 @@ window.QuranAudioStorage = (function(){
   var audio=document.getElementById('luxury-pill-audio');
   var pill=document.getElementById('luxury-pill');
   var state={surah:1,ayah:1,gid:0,qref:'',reciter:'addel',reciterName:'عادل الكربلائي',isPlaying:false,repeatAyah:false,repeatSurah:false,completeMode:null,autoContinue:false,hasChosenComplete:false,rate:1,currentPage:1,lastObjectUrl:null};
+function setPillAyah(text, isName){
+  var wrap=document.getElementById('luxury-pill-ayah');
+  var inner=document.getElementById('luxury-pill-ayah-text');
+  if(!wrap) return;
+  if(!inner){ wrap.textContent=text; return; }
+  inner.classList.remove('lux-marquee');
+  wrap.style.setProperty('--lux-shift','0px');
+  inner.textContent=text;
+  if(!isName) return;
+  requestAnimationFrame(function(){
+    try{
+      var over=inner.scrollWidth - wrap.clientWidth;
+      if(over>4){
+        wrap.style.setProperty('--lux-shift', over+'px');
+        void inner.offsetWidth;
+        inner.classList.add('lux-marquee');
+      }
+    }catch(e){}
+  });
+}
   function getAudioUrl(reciter, surah, ayah){
     reciter=low(reciter); var s=String(surah).padStart(3,'0'); var a=String(ayah).padStart(3,'0');
     var url='https://hmomen.com/static/app-res/quran/'+reciter+'/'+s+a+'.mp3';
@@ -17001,7 +17024,7 @@ window.QuranAudioStorage = (function(){
     var playBtn=document.getElementById('luxury-pill-play');
     if(surahEl) surahEl.textContent='سورة '+ (SN[surah]||surah);
     // === مؤشر تحميل للنت الضعيف - بدون setTimeout ===
-    if(ayahEl) ayahEl.textContent='⏳ جاري تحميل آية '+ayah+'...';
+    if(ayahEl) setPillAyah('⏳ جاري تحميل آية '+ayah+'...', false);
     if(playBtn) playBtn.textContent='⏳';
     if(isNewPage){
       try{ var sc1=document.getElementById('reader-scroll-container')||document.getElementById('same-continuous-wrapper'); if(sc1) sc1.scrollTop=0; }catch(e){}
@@ -17023,12 +17046,12 @@ window.QuranAudioStorage = (function(){
       audio.src=url;
       audio.playbackRate=state.rate;
       // أحداث التحميل النظيفة
-      audio.onwaiting=function(){ if(ayahEl) ayahEl.textContent='⏳ النت ضعيف - جاري التحميل...'; if(playBtn) playBtn.textContent='⏳'; };
-      audio.onstalled=function(){ if(ayahEl) ayahEl.textContent='⏳ توقف مؤقت - إعادة المحاولة...'; };
-      audio.oncanplay=function(){ if(ayahEl) ayahEl.textContent='آية '+ayah+' من '+(SA[surah]||'?')+' • '+state.reciterName.split(' ')[0]; };
+      audio.onwaiting=function(){ if(ayahEl) setPillAyah('⏳ النت ضعيف - جاري التحميل...', false); if(playBtn) playBtn.textContent='⏳'; };
+      audio.onstalled=function(){ if(ayahEl) setPillAyah('⏳ توقف مؤقت - إعادة المحاولة...', false); };
+      audio.oncanplay=function(){ if(ayahEl) setPillAyah(state.reciterName, true); };
       await audio.play(); state.isPlaying=true; updateBtn();
     }catch(e){
-      if(ayahEl) ayahEl.textContent='⚠️ فشل التحميل - اضغط لإعادة المحاولة';
+      if(ayahEl) setPillAyah('⚠️ فشل التحميل - اضغط لإعادة المحاولة', false);
       if(playBtn) playBtn.textContent='⚠️';
       state.isPlaying=false; updateBtn();
     }
