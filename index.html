@@ -7971,7 +7971,7 @@ ayahText?h("div",{className:"text-[13px] leading-7 text-right w-full",style:{fon
             s("div",{className:"text-sm",style:{color:g.text,opacity:0.6},children:['لا توجد نتائج لـ "',a,'"']})
           ]})
         ]})]}),e==="fav"&&h("div",{className:"animate-fadeIn p-0",children:[s("div",{id:"fav-v6-root"}), (function(){ try{ setTimeout(function(){ try{ if(window.renderFav) window.renderFav(); }catch(e){} },0); }catch(e){} return null; })()]}) ,e==="khatma"&&h("div",{id:"khatma-root-v9",className:"animate-fadeIn space-y-6"}),e==="hifz"&&h("div",{id:"hifz-root-v1",className:"animate-fadeIn space-y-6"}),e==="settings"&&h("div",{className:"animate-fadeIn space-y-4 max-w-2xl",children:[h("h2",{className:"text-xl font-bold flex items-center gap-3",style:{fontFamily:"'Amiri', serif"},children:[s(ar,{className:"w-5 h-5 text-[#D4AF37]"})," الإعدادات والمظهر"]}),h("div",{className:"space-y-3",children:[
-h("div",{className:"rounded-2xl overflow-hidden border transition-all",style:{background:g.card,border:`1px solid ${g.border}20`},children:[h("button",{onClick:()=>{const el=document.getElementById('hints-acc-body'); if(el){el.style.display=el.style.display==='none'?'block':'none';}},className:"w-full flex items-center justify-between p-4 text-right hover:bg-black/[0.02] transition",children:[h("div",{className:"flex items-center gap-3",children:[s("span",{className:"w-5 h-5 text-[#D4AF37]",children:"💡"}),h("div",{className:"text-right",children:[s("div",{className:"font-bold text-sm flex items-center gap-2",children:["التعليمات والتلميحات",s("span",{className:"px-2 py-0.5 rounded-full text-[10px] bg-[#D4AF37] text-[#0F3D2E]",children:"جديد"})]}),s("div",{className:"text-[11px] opacity-60",children:"إدارة تلميحات التنقل"})]})]}),s("div",{className:"w-8 h-8 rounded-full flex items-center justify-center bg-black/5",children:s("span",{className:"text-xs",children:"▼"})})]}),h("div",{id:"hints-acc-body",className:"p-5 border-t space-y-3",style:{borderColor:`${g.border}20`,background:`${g.bg}`,display:"none"},children:[h("div",{className:"flex items-center justify-between p-3 rounded-xl",style:{background:`${g.card}`},children:[h("div",{children:[s("div",{className:"text-sm font-medium",children:"تلميح التنقل بين الأوضاع"}),s("div",{className:"text-[11px] opacity-60",children:"إصبعين للتبديل بين المتصل والكتاب"})]}),s("button",{onClick:()=>{if(window.HintsSystem)window.HintsSystem.open('modes');},className:"px-4 py-2 rounded-full text-xs font-bold bg-[#0F3D2E] text-[#D4AF37]",children:"عرض"})]}),h("div",{className:"flex items-center justify-between p-3 rounded-xl",style:{background:`${g.card}`},children:[h("div",{children:[s("div",{className:"text-sm font-medium",children:"تلميح التنقل داخل الكتاب"}),s("div",{className:"text-[11px] opacity-60",children:"سحب بإصبع للتنقل بين الصفحات"})]}),s("button",{onClick:()=>{if(window.HintsSystem)window.HintsSystem.open('book');},className:"px-4 py-2 rounded-full text-xs font-bold bg-[#0F3D2E] text-[#D4AF37]",children:"عرض"})]}),h("div",{className:"grid grid-cols-2 gap-2",children:[s("button",{onClick:()=>{try{localStorage.removeItem('mushaf-hints-never-show-v8');localStorage.removeItem('mushaf-hint-nav-seen-v8');localStorage.removeItem('mushaf-hint-book-seen-v8');}catch(e){}},className:"py-3 rounded-xl text-xs font-bold border  hover:bg-[#D4AF37]/10",style:{borderColor:`${g.border}30`},children:"↺ إعادة تفعيل"}),s("button",{onClick:()=>{try{localStorage.setItem('mushaf-hints-never-show-v8','1');}catch(e){}},className:"py-3 rounded-xl text-xs font-bold border ",style:{borderColor:`${g.border}20`},children:"إيقاف البداية"})]})]})]}),
+h("div",{className:"rounded-2xl overflow-hidden border transition-all",style:{background:g.card,border:`1px solid ${g.border}20`},children:[h("button",{onClick:()=>{const el=document.getElementById('hints-acc-body'); if(el){el.style.display=el.style.display==='none'?'block':'none'; if(el.style.display==='block' && window.refreshNotifBtnState) window.refreshNotifBtnState();}},className:"w-full flex items-center justify-between p-4 text-right hover:bg-black/[0.02] transition",children:[h("div",{className:"flex items-center gap-3",children:[s("span",{className:"w-5 h-5 text-[#D4AF37]",children:"💡"}),h("div",{className:"text-right",children:[s("div",{className:"font-bold text-sm flex items-center gap-2",children:["الإشعارات والتعليمات"]}),s("div",{className:"text-[11px] opacity-60",children:"تفعيل الإشعارات وإدارة التلميحات"})]})]}),s("div",{className:"w-8 h-8 rounded-full flex items-center justify-center bg-black/5",children:s("span",{className:"text-xs",children:"▼"})})]}),h("div",{id:"hints-acc-body",className:"p-5 border-t space-y-3",style:{borderColor:`${g.border}20`,background:`${g.bg}`,display:"none"},children:[h("div",{className:"flex items-center justify-between p-3 rounded-xl",style:{background:`${g.card}`},children:[h("div",{children:[s("div",{className:"text-sm font-medium",children:"الإشعارات"}),s("div",{id:"notif-permission-hint",className:"text-[11px] opacity-60",children:"تفعيل تذكير الورد"})]}),s("button",{id:"notif-permission-btn",onClick:()=>{if(window.askNotificationPermission)window.askNotificationPermission();},className:"px-4 py-2 rounded-full text-xs font-bold bg-[#0F3D2E] text-[#D4AF37]",children:"🔔 تفعيل الإشعارات"})]}),h("div",{className:"flex items-center justify-between p-3 rounded-xl",style:{background:`${g.card}`},children:[h("div",{children:[s("div",{className:"text-sm font-medium",children:"تلميح التنقل بين الأوضاع"}),s("div",{className:"text-[11px] opacity-60",children:"إصبعين للتبديل بين المتصل والكتاب"})]}),s("button",{onClick:()=>{if(window.HintsSystem)window.HintsSystem.open('modes');},className:"px-4 py-2 rounded-full text-xs font-bold bg-[#0F3D2E] text-[#D4AF37]",children:"عرض"})]}),h("div",{className:"flex items-center justify-between p-3 rounded-xl",style:{background:`${g.card}`},children:[h("div",{children:[s("div",{className:"text-sm font-medium",children:"تلميح التنقل داخل الكتاب"}),s("div",{className:"text-[11px] opacity-60",children:"سحب بإصبع للتنقل بين الصفحات"})]}),s("button",{onClick:()=>{if(window.HintsSystem)window.HintsSystem.open('book');},className:"px-4 py-2 rounded-full text-xs font-bold bg-[#0F3D2E] text-[#D4AF37]",children:"عرض"})]}),h("div",{className:"grid grid-cols-2 gap-2",children:[s("button",{onClick:()=>{try{localStorage.removeItem('mushaf-hints-never-show-v8');localStorage.removeItem('mushaf-hint-nav-seen-v8');localStorage.removeItem('mushaf-hint-book-seen-v8');}catch(e){}},className:"py-3 rounded-xl text-xs font-bold border  hover:bg-[#D4AF37]/10",style:{borderColor:`${g.border}30`},children:"↺ إعادة تفعيل"}),s("button",{onClick:()=>{try{localStorage.setItem('mushaf-hints-never-show-v8','1');}catch(e){}},className:"py-3 rounded-xl text-xs font-bold border ",style:{borderColor:`${g.border}20`},children:"إيقاف البداية"})]})]})]}),
 h("div",{className:"rounded-2xl overflow-hidden border transition-all",style:{background:g.card,border:`1px solid ${g.border}20`,borderColor:oA==="bg"?`#D4AF37`:`${g.border}20`},children:[h("button",{onClick:()=>sOA(oA==="bg"?null:"bg"),className:"w-full flex items-center justify-between p-4 text-right hover:bg-black/[0.02] transition",children:[h("div",{className:"flex items-center gap-3",children:[s(_n,{className:"w-5 h-5 text-[#D4AF37]"}),h("div",{className:"text-right",children:[s("div",{className:"font-bold text-sm",children:"الخلفية والمظهر"}),s("div",{className:"text-[11px] opacity-60",children:V==="ivory"?"مخطوطة فاتحة":V==="dark"?"ليلي داكن":V==="emerald"?"أخضر ملكي":V==="ottoman"?"أزرق ملكي":V==="gold"?"ذهبي ملكي":V==="brown"?"بني ملكي":V==="midnight"?"ليلي ملكي":"بيج دافئ"})]})]}),s("div",{className:`w-8 h-8 rounded-full flex items-center justify-center transition-all ${oA==="bg"?"bg-[#0F3D2E] text-[#D4AF37] rotate-180":"bg-black/5"}`,children:s("span",{className:"text-xs",children:"▼"})})]}),oA==="bg"&&h("div",{className:"p-5 border-t animate-fadeIn",style:{borderColor:`${g.border}20`,background:`${g.bg}`},children:[s("div",{className:"flex flex-col gap-3 w-full",children:[{id:"ivory",label:"مخطوطة فاتحة",bg:"#FFFBEB",desc:"قراءة نهارية"},{id:"dark",label:"ليلي داكن",bg:"#0A1F1A",desc:"راحة للعين"},{id:"emerald",label:"أخضر ملكي",bg:"#0F3D2E",desc:"فاخر"},{id:"ottoman",label:"أزرق ملكي",bg:"#1A2F4A",desc:"ملكي"},{id:"gold",label:"ذهبي ملكي",bg:"#F9E79F",desc:"دافئ"},{id:"brown",label:"بني ملكي",bg:"#2D1B14",desc:"خشبي"},{id:"midnight",label:"ليلي ملكي",bg:"#0A0E1A",desc:"ملكي داكن"},{id:"sepia",label:"بيج دافئ",bg:"#F5E6D3",desc:"ورقي"}
 ]
 .map((i)=>h("div",{className:"flex flex-col w-full",children:[
@@ -17364,8 +17364,8 @@ window.QuranAudioStorage = (function(){
       var isCustom=!!r.custom;
       html+='<div class="pro-card pro-reciter-card" data-folder="'+r.folder+'" data-name="'+r.name.toLowerCase()+'" data-downloaded="0" style="background:rgba(255,255,255,0.92);border-radius:18px;padding:14px;margin-bottom:12px;border:1.5px solid rgba(0,0,0,0.06)"><div style="display:flex;align-items:center;gap:12px">';
       // سطر واحد: دائرة تشغيل صافية بلا حرف + الاسم + زر إعدادات. الحرف كان تكراراً للاسم، فانشال.
-      html+='<button type="button" class="pro-btn pro-preview pro-av" data-folder="'+r.folder+'" style="width:44px;height:44px;min-width:44px;border-radius:50%;background:linear-gradient(135deg,#0F3D2E,#D4AF37);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;border:none;cursor:pointer;padding:0">▶</button><div style="flex:1;min-width:0"><b style="font-size:13px;display:block">'+r.name+'</b><div style="font-size:11px;opacity:0.6"><span class="pro-count" data-folder="'+r.folder+'">...</span></div><div style="height:5px;background:rgba(0,0,0,0.08);border-radius:999px;margin-top:8px;overflow:hidden"><div class="pro-progress-fill" id="pro-progress-'+r.folder+'" style="height:100%;background:#0F3D2E;width:0%;transition:width 0.3s"></div></div><div class="pro-prev-list" id="pro-prev-'+r.folder+'" style="font-size:11px;opacity:0.6;margin-top:6px"></div></div><button type="button" class="pro-btn pro-reciter-settings" data-folder="'+r.folder+'" style="width:32px;height:32px;min-width:32px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:14px;cursor:pointer;padding:0">⚙️</button></div>';
-      // خيارات القارئ: مخفية افتراضياً، بتفتح بس لهاد القارئ. سطر واحد فيه سورة / جزء / كامل / حذف / تعديل (للمخصص).
+      html+='<button type="button" class="pro-btn pro-preview pro-av" data-folder="'+r.folder+'" style="width:48px;height:48px;min-width:48px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,#0F3D2E,#D4AF37);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;padding:0;position:relative;z-index:2;border:none">▶</button><div style="flex:1;min-width:0"><b style="font-size:13px;display:block">'+r.name+'</b><div style="font-size:11px;opacity:0.6"><span class="pro-count" data-folder="'+r.folder+'">...</span></div><div style="height:5px;background:rgba(0,0,0,0.08);border-radius:999px;margin-top:8px;overflow:hidden"><div class="pro-progress-fill" id="pro-progress-'+r.folder+'" style="height:100%;background:#0F3D2E;width:0%;transition:width 0.3s"></div></div><div class="pro-prev-list" id="pro-prev-'+r.folder+'" style="font-size:11px;opacity:0.6;margin-top:6px"></div></div><button type="button" class="pro-btn pro-reciter-settings" data-folder="'+r.folder+'" style="width:32px;height:32px;min-width:32px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:14px;cursor:pointer;padding:0">⚙️</button></div>';
+      // خيارات القارئ: مخفية افتراضياً، تفتح لهذا القارئ فقط. سطر واحد فيه سورة / جزء / كامل / حذف / تعديل (للمخصص).
       html+='<div class="pro-reciter-options" data-folder="'+r.folder+'" style="display:none;margin-top:12px;gap:8px"><button type="button" class="pro-btn pro-dl-surah" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📖 سورة</button><button type="button" class="pro-btn pro-dl-juz" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📑 جزء</button><button type="button" class="pro-btn pro-dl-full" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📚 كامل</button><button type="button" class="pro-btn del pro-del" data-folder="'+r.folder+'" style="width:40px;min-width:40px;padding:11px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:12px;font-size:12px;color:#DC2626">✖️</button>';
       if(isCustom) html+='<button type="button" class="pro-btn pro-edit" data-folder="'+r.folder+'" style="width:40px;min-width:40px;padding:11px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:12px;font-size:12px">✏️</button>';
       html+='</div></div>';
@@ -17423,9 +17423,9 @@ window.QuranAudioStorage = (function(){
       var mode=getWifiMode(); if(mode==='off'){ resolve(true); return; }
       getNetworkType().then(function(t){
         if(t!=='cellular'){ resolve(true); return; }
-        if(mode==='block'){ alert('التحميل موقّف: إنت على بيانات والوضع "WiFi منع" — وصّل على WiFi أو غيّر الوضع من ⚙️'); resolve(false); return; }
+        if(mode==='block'){ alert('التحميل متوقف: أنت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أو غيّر الوضع من الإعدادات'); resolve(false); return; }
         // warn
-        resolve(!!confirm('إنت على بيانات والوضع "WiFi تحذير" — تريد المتابعة على البيانات؟'));
+        resolve(!!confirm('أنت على بيانات الهاتف، والوضع هو "تحذير". هل تريد المتابعة على بيانات الهاتف؟'));
       }).catch(function(){ resolve(true); });
     });
   }
@@ -17437,9 +17437,9 @@ window.QuranAudioStorage = (function(){
         updateNetPill(t);
         if(mode==='off' || wifiWarnAccepted){ resolve(true); return; }
         if(t!=='cellular'){ resolve(true); return; }
-        // انقطع الـ WiFi بنص التحميل: إيقاف مؤقت، مش إلغاء. بيكمّل من وين وقف.
+        // انقطع اتصال WiFi أثناء التحميل: إيقاف مؤقت، وليس إلغاء. يكمل من حيث توقف.
         wifiPaused=true; downloadPaused=true;
-        if(currentDownloadInfo){ currentDownloadInfo.detail=(mode==='block' ? 'انقطع الـ WiFi — متوقف مؤقتاً. وصّل على WiFi ثم اضغط متابعة' : 'انتقلت لبيانات — متوقف مؤقتاً. اضغط متابعة للمتابعة على البيانات أو وصّل على WiFi'); showCurrentDownload(currentDownloadInfo); }
+        if(currentDownloadInfo){ currentDownloadInfo.detail=(mode==='block' ? 'انقطع اتصال WiFi. التحميل متوقف مؤقتاً. اتصل بشبكة WiFi ثم اضغط متابعة' : 'انتقلت إلى بيانات الهاتف. التحميل متوقف مؤقتاً. اضغط متابعة للمتابعة على بيانات الهاتف أو اتصل بشبكة WiFi'); showCurrentDownload(currentDownloadInfo); }
         resolve(false);
       }).catch(function(){ resolve(true); });
     });
@@ -17448,7 +17448,7 @@ window.QuranAudioStorage = (function(){
   (function initNetworkListener(){
     try{
       var net=(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Network) ? window.Capacitor.Plugins.Network : null;
-      if(net && net.addListener && !window.__proAudioNetworkHooked){ window.__proAudioNetworkHooked=true; net.addListener('networkStatusChange', function(st){ try{ if(!isDownloading || !currentDownloadInfo) return; var t=(st && st.connectionType==='wifi') ? 'wifi' : (st && st.connectionType==='cellular') ? 'cellular' : (st && st.connectionType==='none') ? 'none' : 'unknown'; updateNetPill(t); if(downloadPaused) return; if(getWifiMode()==='off' || wifiWarnAccepted) return; if(t==='cellular'){ wifiPaused=true; downloadPaused=true; currentDownloadInfo.detail='انقطع الـ WiFi — متوقف مؤقتاً. وصّل على WiFi ثم اضغط متابعة'; showCurrentDownload(currentDownloadInfo); } }catch(e){} }); }
+      if(net && net.addListener && !window.__proAudioNetworkHooked){ window.__proAudioNetworkHooked=true; net.addListener('networkStatusChange', function(st){ try{ if(!isDownloading || !currentDownloadInfo) return; var t=(st && st.connectionType==='wifi') ? 'wifi' : (st && st.connectionType==='cellular') ? 'cellular' : (st && st.connectionType==='none') ? 'none' : 'unknown'; updateNetPill(t); if(downloadPaused) return; if(getWifiMode()==='off' || wifiWarnAccepted) return; if(t==='cellular'){ wifiPaused=true; downloadPaused=true; currentDownloadInfo.detail='انقطع اتصال WiFi. التحميل متوقف مؤقتاً. اتصل بشبكة WiFi ثم اضغط متابعة'; showCurrentDownload(currentDownloadInfo); } }catch(e){} }); }
     }catch(e){}
   })();
   function showCurrentDownload(info){
@@ -17490,8 +17490,8 @@ window.QuranAudioStorage = (function(){
       if(wifiPaused){
         getNetworkType().then(function(t){
           var mode=getWifiMode();
-          if(t==='cellular' && mode==='block'){ alert('لسا على بيانات والوضع "WiFi منع" — وصّل على WiFi أولاً'); return; }
-          if(t==='cellular' && mode==='warn'){ if(!confirm('إنت على بيانات — تريد المتابعة على البيانات؟')) return; wifiWarnAccepted=true; }
+          if(t==='cellular' && mode==='block'){ alert('ما زلت على بيانات الهاتف، والوضع هو "WiFi فقط". اتصل بشبكة WiFi أولاً'); return; }
+          if(t==='cellular' && mode==='warn'){ if(!confirm('أنت على بيانات الهاتف. هل تريد المتابعة على بيانات الهاتف؟')) return; wifiWarnAccepted=true; }
           wifiPaused=false; downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue);
         });
         return;
@@ -17508,31 +17508,25 @@ window.QuranAudioStorage = (function(){
     document.querySelectorAll('.pro-del').forEach(function(btn){ btn.onclick=function(){ deleteReciter(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-edit').forEach(function(btn){ btn.onclick=function(){ editCustom(btn.getAttribute('data-folder')); }; });
   }
-  var previewToken=0; var previewBlobUrl=null;
   function previewReciter(folder){
     var btn=document.querySelector('.pro-preview[data-folder="'+folder+'"]');
     function resetAll(){ document.querySelectorAll('.pro-preview').forEach(function(b){ b.textContent='▶'; }); }
     function stopPreview(){
       if(audioPreview){ try{ audioPreview.pause(); }catch(e){} audioPreview=null; }
-      if(previewBlobUrl){ try{ URL.revokeObjectURL(previewBlobUrl); }catch(e){} previewBlobUrl=null; }
       previewFolder=null; resetAll();
     }
-    // كبسة على نفس القارئ وهو شغّال أو عم يتحمّل = إيقاف. كبسة على قارئ تاني = إيقاف الأول وتشغيل التاني.
+    // الضغط على نفس القارئ أثناء التشغيل = إيقاف. الضغط على قارئ آخر = إيقاف الأول وتشغيل الآخر.
     if(previewFolder===folder){ stopPreview(); return; }
     stopPreview();
-    previewToken++; var myToken=previewToken; previewFolder=folder;
+    previewFolder=folder;
     if(btn) btn.textContent='⏸';
+    // ملف أوديو مباشرة على الرابط: لا fetch ولا CORS ولا انتظار. الكبسة نفسها هي التي تشغّل الصوت.
     var url=getAudioUrl(folder,1,1);
-    // نفس طريق التحميل المجرب: جيب الصوت كـ Blob ثم شغّلو من Blob URL، مش Audio مباشرة على الرابط.
-    fetchAudioBlob(url).then(function(blob){
-      if(myToken!==previewToken) return;
-      previewBlobUrl=URL.createObjectURL(blob);
-      audioPreview=new Audio(previewBlobUrl); audioPreview.volume=0.8;
-      function onEnd(){ if(myToken===previewToken) stopPreview(); }
-      audioPreview.onended=onEnd;
-      audioPreview.play().catch(function(){ onEnd(); });
-      audioPreview.ontimeupdate=function(){ if(audioPreview && audioPreview.currentTime>=5){ try{ audioPreview.pause(); }catch(e){} onEnd(); if(audioPreview) audioPreview.ontimeupdate=null; } };
-    }).catch(function(){ if(myToken===previewToken) stopPreview(); });
+    audioPreview=new Audio(url); audioPreview.volume=0.8;
+    function onEnd(){ if(previewFolder===folder) stopPreview(); }
+    audioPreview.onended=onEnd;
+    audioPreview.play().catch(function(){ onEnd(); });
+    audioPreview.ontimeupdate=function(){ if(audioPreview && audioPreview.currentTime>=5){ try{ audioPreview.pause(); }catch(e){} onEnd(); if(audioPreview) audioPreview.ontimeupdate=null; } };
   }
   function updateCount(folder){
     try{
@@ -17542,10 +17536,10 @@ window.QuranAudioStorage = (function(){
     }catch(e){ setCount(folder,0,[],0); }
   }
   function setCount(folder,count,surahList,surahMap,totalSize){
-    var el=document.querySelector('.pro-count[data-folder="'+folder+'"]'); if(el) el.textContent=count>0? count+' آية - '+(Math.round(totalSize/1024/1024*10)/10)+'MB' : 'لا يوجد محمل';
+    var el=document.querySelector('.pro-count[data-folder="'+folder+'"]'); if(el) el.textContent=count>0? count+' آية - '+(Math.round(totalSize/1024/1024*10)/10)+'MB' : 'لا يوجد تحميل';
     var card=document.querySelector('.pro-reciter-card[data-folder="'+folder+'"]'); if(card) card.setAttribute('data-downloaded',count);
     var prog=document.getElementById('pro-progress-'+folder); if(prog) prog.style.width=count>0? Math.min(100,Math.round(count/6236*100))+'%' : '0%';
-    var prevEl=document.getElementById('pro-prev-'+folder); if(prevEl){ if(count>0){ var totalSurahs=surahMap?Object.keys(surahMap).length:0; prevEl.textContent=totalSurahs>0? 'محمل: '+totalSurahs+' سورة'+(surahList?' ('+surahList+')':'') : count+' آية محملة'; } else { prevEl.textContent=''; } }
+    var prevEl=document.getElementById('pro-prev-'+folder); if(prevEl){ if(count>0){ var totalSurahs=surahMap?Object.keys(surahMap).length:0; prevEl.textContent=totalSurahs>0? 'تم تحميل: '+totalSurahs+' سورة'+(surahList?' ('+surahList+')':'') : count+' آية محملة'; } else { prevEl.textContent=''; } }
   }
 
   function showSurahModal(folder){
@@ -17626,7 +17620,7 @@ window.QuranAudioStorage = (function(){
         isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); updateCount(folder); if(failedList.length>0) alert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else alert('تم التحميل: '+done+' آية - الحمد لله');
         return;
       }
-      // فحص WiFi قبل كل دفعة: إذا انقطع الـ WiFi، إيقاف مؤقت بدون خسارة أي آية.
+      // فحص WiFi قبل كل دفعة: إذا انقطع اتصال WiFi، إيقاف مؤقت بدون خسارة أي آية.
       checkWifiMidDownload().then(function(canContinue){ if(!canContinue) return; runBatch(); });
       return;
       function runBatch(){
@@ -17806,27 +17800,8 @@ window.QuranAudioStorage = (function(){
       }
     }
     requestAnimationFrame(hookToggle);
-    // أيضا استمع مباشرة لزر الإدارة
-    document.addEventListener('click', function(e){
-      var btn=e.target.closest && e.target.closest('[onclick*="sm-body-audio"]');
-      if(!btn){
-        // ابحث عن الزر بالنص
-        var t=e.target;
-        if(t && t.textContent && t.textContent.includes('القراءة الصوتية')){
-          btn=t.closest('button')||t;
-        }
-      }
-      if(btn){
-        requestAnimationFrame(function(){
-          requestAnimationFrame(function(){
-            audioSection=document.getElementById('sm-body-audio');
-            if(audioSection && (audioSection.style.display===''||audioSection.style.display==='block'||audioSection.style.display!=='none')){
-              render();
-            }
-          });
-        });
-      }
-    }, true);
+    // لا مستمع كبسات ثانٍ هنا: render() تنادى مرة واحدة فقط من خطّاف SM.toggle.
+    // المستمع القديم كان يرسم القسم مرة ثانية على نفس الكبسة، فيمحي أزرار الرسمة الأولى.
   }
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', initClean, {once:true}); } else { initClean(); }
   window.ProAudioManager={render:render};
@@ -17839,6 +17814,42 @@ window.QuranAudioStorage = (function(){
 
 
 
+
+<script id="notif-permission-logic">
+(function(){
+  function getLN(){ try{ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) ? window.Capacitor.Plugins.LocalNotifications : null; }catch(e){ return null; } }
+  function setBtn(text, disabled){
+    var b=document.getElementById('notif-permission-btn'); if(b){ b.textContent=text; b.disabled=!!disabled; b.style.opacity=disabled?'0.7':'1'; }
+  }
+  function setHint(text){
+    var h=document.getElementById('notif-permission-hint'); if(h) h.textContent=text;
+  }
+  window.refreshNotifBtnState=function(){
+    var LN=getLN();
+    if(!LN){ setBtn('🔔 تفعيل الإشعارات', false); setHint('الإشعارات غير متوفرة بهذا التطبيق'); return; }
+    try{
+      if(LN.checkPermissions){ LN.checkPermissions().then(function(res){
+        var d=(res && res.display)||'';
+        if(d==='granted'){ setBtn('✅ الإشعارات مفعّلة', true); setHint('الإشعارات مفعّلة'); }
+        else if(d==='denied'){ setBtn('⚠️ مرفوضة', false); setHint('مرفوضة من إعدادات الهاتف: التطبيقات ← مصحفي ← الإشعارات'); }
+        else { setBtn('🔔 تفعيل الإشعارات', false); setHint('تفعيل تذكير الورد'); }
+      }).catch(function(){ setBtn('🔔 تفعيل الإشعارات', false); setHint('تفعيل تذكير الورد'); }); return; }
+    }catch(e){}
+    setBtn('🔔 تفعيل الإشعارات', false); setHint('تفعيل تذكير الورد');
+  };
+  window.askNotificationPermission=function(){
+    var LN=getLN();
+    if(!LN){ alert('الإشعارات غير متوفرة بهذا التطبيق'); return; }
+    setBtn('⏳ جارٍ الطلب…', true);
+    LN.requestPermissions().then(function(res){
+      var d=(res && res.display)||'';
+      if(d==='granted'){ setBtn('✅ الإشعارات مفعّلة', true); setHint('الإشعارات مفعّلة'); }
+      else if(d==='denied'){ setBtn('⚠️ مرفوضة', false); setHint('مرفوضة من إعدادات الهاتف: التطبيقات ← مصحفي ← الإشعارات'); alert('تم رفض الإذن. لتفعيله لاحقاً: إعدادات الهاتف ← التطبيقات ← مصحفي ← الإشعارات'); }
+      else { setBtn('🔔 تفعيل الإشعارات', false); setHint('تفعيل تذكير الورد'); }
+    }).catch(function(){ setBtn('🔔 تفعيل الإشعارات', false); setHint('تفعيل تذكير الورد'); alert('تعذّر طلب الإذن'); });
+  };
+})();
+</script>
 </body>
 
 
