@@ -16769,6 +16769,46 @@ try{
 </div>
 <div id="luxury-reciter-sheet"><div id="luxury-reciter-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-family:Amiri,serif;font-size:13px">اختر القارئ</b><button id="luxury-reciter-close" style="width:26px;height:26px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer">✕</button></div><div id="luxury-reciters-list"></div></div></div>
 <audio id="luxury-pill-audio" preload="auto" style="display:none"></audio>
+<script id="quran-audio-storage-v1">
+// v36 - نظام التخزين الوحيد: ملفات حقيقية عبر Capacitor Filesystem + عدّاد خفيف بـ localStorage.
+// نظام التخزين الوحيد. أي شي قديم انحذف، مش انترك فوقه.
+window.QuranAudioStorage = (function(){
+  function low(s){ return (s||'').toLowerCase().trim().replace(/[^a-z0-9_-]/g,''); }
+  function fs(){ try{ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) ? window.Capacitor.Plugins.Filesystem : null; }catch(e){ return null; } }
+  function path(folder, s, a){ return 'quran-audio/'+low(folder)+'/'+String(s).padStart(3,'0')+String(a).padStart(3,'0')+'.mp3'; }
+  function metaKey(){ return 'quran_audio_meta_v1'; }
+  function readMeta(){ try{ var r=localStorage.getItem(metaKey()); if(!r) return {}; var o=JSON.parse(r); return (o && typeof o==='object') ? o : {}; }catch(e){ return {}; } }
+  function writeMeta(m){ try{ localStorage.setItem(metaKey(), JSON.stringify(m)); }catch(e){} }
+  function blobToB64(blob){ return new Promise(function(res, rej){ try{ var fr=new FileReader(); fr.onload=function(){ var r=String(fr.result||''); var c=r.indexOf(','); res(c!==-1 ? r.slice(c+1) : r); }; fr.onerror=function(){ rej(fr.error||new Error('read')); }; fr.readAsDataURL(blob); }catch(e){ rej(e); } }); }
+  function b64ToBlob(b64){ try{ var bin=atob(b64), len=bin.length, bytes=new Uint8Array(len); for(var i=0;i<len;i++) bytes[i]=bin.charCodeAt(i); return new Blob([bytes], {type:'audio/mpeg'}); }catch(e){ return null; } }
+  function getStats(folder){ var m=readMeta(); var e=m[low(folder)]; if(!e) return {count:0, size:0, surahs:{}}; return {count:e.count||0, size:e.size||0, surahs:e.surahs||{}}; }
+  function save(folder, s, a, blob){
+    var f=fs(); if(!f || !f.writeFile) return Promise.reject(new Error('Filesystem غير متوفر - افتح التطبيق من الـ APK'));
+    var p=path(folder, s, a);
+    return f.stat({path:p, directory:'DATA'}).then(function(st){ return (st && st.size) || 0; }).catch(function(){ return 0; }).then(function(oldSize){
+      var existed = oldSize>0;
+      return blobToB64(blob).then(function(b64){ return f.writeFile({path:p, data:b64, directory:'DATA', recursive:true}); }).then(function(){
+        var m=readMeta(); var key=low(folder); var e=m[key] || {count:0, size:0, surahs:{}};
+        if(!existed){ e.count=(e.count||0)+1; var sk=String(s); e.surahs[sk]=(e.surahs[sk]||0)+1; }
+        e.size=Math.max(0, (e.size||0)-oldSize+(blob.size||0));
+        m[key]=e; writeMeta(m);
+        return true;
+      });
+    });
+  }
+  function load(folder, s, a){
+    var f=fs(); if(!f || !f.readFile) return Promise.resolve(null);
+    return f.readFile({path:path(folder, s, a), directory:'DATA'}).then(function(res){ var b=b64ToBlob(res && res.data ? res.data : ''); return (b && b.size>800) ? b : null; }).catch(function(){ return null; });
+  }
+  function deleteFolder(folder){
+    var f=fs(); var key=low(folder);
+    var m=readMeta(); if(m[key]){ delete m[key]; writeMeta(m); }
+    if(!f || !f.rmdir) return Promise.resolve(true);
+    return f.rmdir({path:'quran-audio/'+key, directory:'DATA', recursive:true}).then(function(){ return true; }).catch(function(){ return true; });
+  }
+  return {save:save, load:load, deleteFolder:deleteFolder, getStats:getStats, path:path};
+})();
+</script>
 <script id="luxury-pill-logic">
 (function(){
   var SA=[0,7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
@@ -16804,7 +16844,7 @@ try{
   }
   var audio=document.getElementById('luxury-pill-audio');
   var pill=document.getElementById('luxury-pill');
-  var state={surah:1,ayah:1,gid:0,qref:'',reciter:'addel',reciterName:'عادل الكربلائي',isPlaying:false,repeatAyah:false,repeatSurah:false,completeMode:null,autoContinue:false,hasChosenComplete:false,rate:1,db:null,currentPage:1};
+  var state={surah:1,ayah:1,gid:0,qref:'',reciter:'addel',reciterName:'عادل الكربلائي',isPlaying:false,repeatAyah:false,repeatSurah:false,completeMode:null,autoContinue:false,hasChosenComplete:false,rate:1,currentPage:1,lastObjectUrl:null};
   function getAudioUrl(reciter, surah, ayah){
     reciter=low(reciter); var s=String(surah).padStart(3,'0'); var a=String(ayah).padStart(3,'0');
     var url='https://hmomen.com/static/app-res/quran/'+reciter+'/'+s+a+'.mp3';
@@ -16822,20 +16862,9 @@ try{
     }catch(e){}
     return url;
   }
-  function getOfflineThenOnline(reciter, surah, ayah){ return new Promise(function(resolve){ var url=getAudioUrl(reciter, surah, ayah); if(!state.db){ resolve(url); return; } try{ var id=low(reciter)+'_'+String(surah).padStart(3,'0')+String(ayah).padStart(3,'0')+'.mp3'; var tx=state.db.transaction(['audios'],'readonly'); var st=tx.objectStore('audios'); var req=st.get(id); req.onsuccess=function(e){ var r=e.target.result; if(r && r.blob){ resolve(URL.createObjectURL(r.blob)); } else { resolve(url); } }; req.onerror=function(){ resolve(url); }; }catch(e){ resolve(url); } }); }
-
-
+  function _revokeLastUrl(){ try{ if(state.lastObjectUrl){ URL.revokeObjectURL(state.lastObjectUrl); state.lastObjectUrl=null; } }catch(e){} }
+  function getOfflineThenOnline(reciter, surah, ayah){ return new Promise(function(resolve){ var url=getAudioUrl(reciter, surah, ayah); try{ if(window.QuranAudioStorage && window.QuranAudioStorage.load){ window.QuranAudioStorage.load(reciter, surah, ayah).then(function(b){ if(b){ _revokeLastUrl(); state.lastObjectUrl=URL.createObjectURL(b); resolve(state.lastObjectUrl); } else resolve(url); }).catch(function(){ resolve(url); }); return; } }catch(e){} resolve(url); }); }
   function low(s){ return (s||'').toLowerCase().trim().replace(/[^a-z0-9_-]/g,''); }
-  function initDB(){
-    return new Promise(function(res){
-      try{
-        var req=indexedDB.open('quran-audio-db',3);
-        req.onupgradeneeded=function(e){ var db=e.target.result; if(!db.objectStoreNames.contains('audios')) db.createObjectStore('audios',{keyPath:'id'}); if(!db.objectStoreNames.contains('download_meta')){ var m=db.createObjectStore('download_meta',{keyPath:'id'}); try{ m.createIndex('reciter','reciter',{unique:false}); }catch(e){} } };
-        req.onsuccess=function(e){ state.db=e.target.result; res(); };
-        req.onerror=function(){ res(); };
-      }catch(e){ res(); }
-    });
-  }
   function getDeletedFolders(){ try{ var r=localStorage.getItem('quran_reciters_deleted'); if(!r) return []; var a=JSON.parse(r); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
   function isDeletedFolder(f){ var lf=low(f); var d=getDeletedFolders(); for(var i=0;i<d.length;i++){ if(low(d[i])===lf) return true; } return false; }
   function folderFromUrl(u){ try{ var s=(u||'').trim(); if(!s) return ''; s=s.replace(/\{[^}]*\}/g,'__PH__'); var parts=s.split('/').filter(function(p){ return p && p!=='__PH__' && p.indexOf('__PH__')===-1 && p.indexOf('.mp3')===-1 && p!=='https:' && p!=='http:' && p.indexOf('.com')===-1 && p.indexOf('.net')===-1 && p.indexOf('.org')===-1; }); for(var i=parts.length-1;i>=0;i--){ var c=low(parts[i]); if(c && /^[a-z0-9_-]+$/.test(c)) return c; } return ''; }catch(e){ return ''; } }
@@ -17218,7 +17247,7 @@ try{
     window.addEventListener('pagehide', function(){ stopAndClose(); });
   }
   window.LuxPill={
-    init:function(){ applyTheme(); initDB().then(function(){ setup(); renderReciters(); }); console.log('Luxury pill CLEAN v2 - 4 modes + transparent + theme-aware'); },
+    init:function(){ applyTheme(); setup(); renderReciters(); console.log('Luxury pill CLEAN v2 - 4 modes + transparent + theme-aware'); },
     selectReciter:function(folder, name){
       state.reciter=low(folder); state.reciterName=name;
       try{ localStorage.setItem('quran_reciter_default', low(folder)); }catch(e){}
@@ -17288,64 +17317,21 @@ try{
   var SN=["","الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
   var audioPreview=null; var isDownloading=false; var isPaused=false; var downloadPaused=false; var currentDownloadInfo=null; var downloadQueue=[]; var failedList=[];
 
-  function openDB(){
-    return new Promise(function(resolve,reject){
-      var req=indexedDB.open('quran-audio-db',3);
-      req.onupgradeneeded=function(e){
-        var db=e.target.result;
-        if(!db.objectStoreNames.contains('audios')){ db.createObjectStore('audios',{keyPath:'id'}); }
-        if(!db.objectStoreNames.contains('download_meta')){ var meta=db.createObjectStore('download_meta',{keyPath:'id'}); meta.createIndex('reciter','reciter',{unique:false}); }
-      };
-      req.onsuccess=function(e){ resolve(e.target.result); };
-      req.onerror=function(e){ reject(e); };
-    });
-  }
-  function saveMeta(reciter,type,number,count,size){
-    openDB().then(function(db){
-      var tx=db.transaction(['download_meta'],'readwrite'); var store=tx.objectStore('download_meta');
-      var id=low(reciter)+'_'+type+'_'+number;
-      store.put({id:id, reciter:low(reciter), type:type, number:number, count:count, size:size||0, date:Date.now()});
-    }).catch(function(){});
-  }
-
-  // تحميل بدون CORS - نفس طريقة مشغل المصحف الأصلي - WebView safe
-  function base64ToBlob(b64){ var bin=atob(b64), len=bin.length, bytes=new Uint8Array(len); for(var i=0;i<len;i++) bytes[i]=bin.charCodeAt(i); return new Blob([bytes], {type:'audio/mpeg'}); }
-  function tryNativeBridge(url, resolve, reject, prev){ if(window.AndroidDownloader){ var id='dl_'+Date.now(); var st=Date.now(), tid; window.onNativeDownload=function(dlId, b64){ if(dlId==id){ cancelAnimationFrame(tid); var blob=base64ToBlob(b64); if(blob.size>800) resolve(blob); else reject(new Error('صغير من الجسر')); } }; var check=function(){ if(Date.now()-st>30000) reject(prev); else tid=requestAnimationFrame(check); }; tid=requestAnimationFrame(check); window.AndroidDownloader.downloadFile(url, id); } else reject(prev); }
-  function ensurePersistentStorage(){ try{ if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().then(function(p){ console.log('persistent:', p); }); } }catch(e){} }
-  ensurePersistentStorage();
   function fetchAudioBlob(url){ return new Promise(function(resolve, reject){
-    function toBlob(d){
-      try{
-        if(!d) return null;
-        if(d instanceof Blob) return d;
-        if(d instanceof ArrayBuffer) return new Blob([d], {type:'audio/mpeg'});
-        if(d instanceof Uint8Array) return new Blob([d], {type:'audio/mpeg'});
-        if(typeof d==='string'){
-          var s=d.trim();
-          if(!s) return null;
-          if(s.indexOf('data:')===0){ var c=s.indexOf(','); if(c!==-1) s=s.slice(c+1); }
-          try{ return base64ToBlob(s); }catch(e){ return null; }
-        }
-        if(d && d.data){ return toBlob(d.data); }
-      }catch(e){ return null; }
-      return null;
-    }
-    function tryLegacy(prevErr){
-      fetch(url, {cache:'force-cache'}).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.blob(); }).then(function(b){ if(b.size>800) resolve(b); else throw new Error('صغير'); }).catch(function(e1){ var xhr=new XMLHttpRequest(); xhr.open('GET', url, true); xhr.responseType='blob'; xhr.timeout=20000; xhr.onload=function(){ if(xhr.status==200 && xhr.response && xhr.response.size>800) resolve(xhr.response); else tryNativeBridge(url, resolve, reject, e1); }; xhr.onerror=function(){ tryNativeBridge(url, resolve, reject, e1); }; xhr.ontimeout=function(){ tryNativeBridge(url, resolve, reject, e1); }; xhr.send(); });
-    }
+    function viaFetch(){ fetch(url, {cache:'force-cache'}).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.blob(); }).then(function(b){ if(b.size>800) resolve(b); else reject(new Error('صغير')); }).catch(function(e){ reject(e); }); }
     try{
       var cap=(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) ? window.Capacitor.Plugins.CapacitorHttp : null;
       if(cap && cap.get){
         cap.get({url:url, responseType:'arraybuffer'}).then(function(res){
-          var b=toBlob(res && res.data);
-          if(b && b.size>800) resolve(b); else tryLegacy(new Error('صغير من Capacitor'));
-        }).catch(function(){ tryLegacy(new Error('CapacitorHttp failed')); });
+          var d=res && res.data; var b=null;
+          try{ if(d instanceof ArrayBuffer) b=new Blob([d], {type:'audio/mpeg'}); else if(d instanceof Uint8Array) b=new Blob([d], {type:'audio/mpeg'}); }catch(e){}
+          if(b && b.size>800) resolve(b); else viaFetch();
+        }).catch(function(){ viaFetch(); });
         return;
       }
     }catch(e){}
-    tryLegacy(null);
+    viaFetch();
   }); }
-
   function render(){
     var root=document.getElementById('pro-audio-root'); if(!root) return;
     var reciters=getReciters();
@@ -17431,26 +17417,11 @@ try{
     audioPreview.ontimeupdate=function(){ if(audioPreview.currentTime>=5){ try{ audioPreview.pause(); }catch(e){} onEnd(); audioPreview.ontimeupdate=null; } };
   }
   function updateCount(folder){
-    openDB().then(function(db){
-      if(!db.objectStoreNames.contains('audios')){ setCount(folder,0,[],0); return; }
-      var tx=db.transaction(['audios'],'readonly'); var store=tx.objectStore('audios');
-      var count=0; var totalSize=0; var surahsFound={};
-      var cursorReq=store.openCursor();
-      cursorReq.onsuccess=function(ev){
-        var cursor=ev.target.result;
-        if(cursor){
-          var key=(cursor.key||'').toString().toLowerCase();
-          if(key.startsWith(low(folder)+'_')){
-            count++; totalSize+=cursor.value?.blob?.size||0;
-            try{ var parts=key.split('_')[1]; var sNum=parseInt(parts.substring(0,3)); if(sNum) surahsFound[sNum]=true; }catch(e){}
-          }
-          cursor.continue();
-        } else {
-          var surahList=Object.keys(surahsFound).map(function(n){ return SN[parseInt(n)]||n; }).slice(0,3).join('، ');
-          setCount(folder,count,surahList, surahsFound, totalSize);
-        }
-      };
-    }).catch(function(){ setCount(folder,0,[],0); });
+    try{
+      var st=(window.QuranAudioStorage && window.QuranAudioStorage.getStats) ? window.QuranAudioStorage.getStats(folder) : {count:0, size:0, surahs:{}};
+      var surahList=Object.keys(st.surahs||{}).map(function(n){ return SN[parseInt(n)]||n; }).slice(0,3).join('، ');
+      setCount(folder, st.count||0, surahList, st.surahs||{}, st.size||0);
+    }catch(e){ setCount(folder,0,[],0); }
   }
   function setCount(folder,count,surahList,surahMap,totalSize){
     var el=document.querySelector('.pro-count[data-folder="'+folder+'"]'); if(el) el.textContent=count>0? count+' آية - '+(Math.round(totalSize/1024/1024*10)/10)+'MB' : 'لا يوجد محمل';
@@ -17534,7 +17505,7 @@ try{
         isDownloading=false; hideCurrentDownload(); updateCount(folder); return;
       }
       if(downloadQueue.length===0){
-        isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); saveMeta(folder, type||'custom', num||'0', done, totalSize); updateCount(folder); if(failedList.length>0) alert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else alert('تم التحميل: '+done+' آية - الحمد لله');
+        isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); updateCount(folder); if(failedList.length>0) alert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else alert('تم التحميل: '+done+' آية - الحمد لله');
         return;
       }
       var batch=[]; for(var i=0;i<3 && downloadQueue.length>0;i++){ batch.push(downloadQueue.shift()); }
@@ -17543,16 +17514,9 @@ try{
         var url=getAudioUrl(folder,item.s,item.a);
         return fetchAudioBlob(url).then(function(blob){
           totalSize+=blob.size;
-          return new Promise(function(resolve){
-            openDB().then(function(db){
-              var tx=db.transaction(['audios'],'readwrite'); var store=tx.objectStore('audios');
-              var id=low(folder)+'_'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
-              store.put({id:id, blob:blob, folder:low(folder), surah:item.s, ayah:item.a, date:Date.now()});
-              tx.oncomplete=function(){ done++; currentDownloadInfo.done=done; if(progressBar){ progressBar.style.width=Math.round(done/total*100)+'%'; } if(countEl) countEl.textContent=done+'/'+total; showCurrentDownload(currentDownloadInfo); resolve(); };
-              tx.onerror=function(){ failedList.push(item); done++; resolve(); };
-            }).catch(function(){ failedList.push(item); done++; resolve(); });
-          });
-        }).catch(function(err){
+          return window.QuranAudioStorage.save(folder, item.s, item.a, blob).then(function(){
+            done++; currentDownloadInfo.done=done; if(progressBar){ progressBar.style.width=Math.round(done/total*100)+'%'; } if(countEl) countEl.textContent=done+'/'+total; showCurrentDownload(currentDownloadInfo); resolve();
+          }).catch(function(){ failedList.push(item); done++; resolve(); });        }).catch(function(err){
           failedList.push(item); done++;
           currentDownloadInfo.detail='فشل: '+SN[item.s]+' '+item.a+' - '+err.message;
           showCurrentDownload(currentDownloadInfo);
@@ -17621,57 +17585,22 @@ try{
     btnFull.onclick=function(e){ if(e) e.stopPropagation(); closeModal(); doDeleteReciterClean(lf,true,folder,isBase); };
   }
   function doDeleteReciterClean(lf, removeFromList, origFolder, isBase){
-    openDB().then(function(db){
-      var tx=db.transaction(['audios','download_meta'],'readwrite');
-      var store=tx.objectStore('audios');
-      var meta=tx.objectStore('download_meta');
-      var c1=store.openCursor();
-      c1.onsuccess=function(ev){
-        var cur=ev.target.result;
-        if(cur){
-          var k=(cur.key||'').toString().toLowerCase();
-          if(k.indexOf(lf+'_')===0 || k===lf || k.indexOf(lf)===0) cur.delete();
-          cur.continue();
-        }
-      };
-      var c2=meta.openCursor();
-      c2.onsuccess=function(ev){
-        var cur=ev.target.result;
-        if(cur){
-          try{ if(low(cur.value.reciter||'')===lf) cur.delete(); }catch(e){}
-          cur.continue();
-        }
-      };
-      tx.oncomplete=function(){
-        if(!removeFromList){
-          try{ updateCount(origFolder); }catch(e){}
-          try{ render(); }catch(e){}
-          try{ if(window.showToast) showToast('تم حذف تحميلات '+origFolder); else alert('تم حذف التحميلات'); }catch(e){}
-          return;
-        }
-        try{
-          ['quran_reciters_custom','reciters','quran_reciters','audio_reciters','mushaf_reciters'].forEach(function(k){
-            try{
-              var rk=localStorage.getItem(k); if(!rk) return;
-              var ak=JSON.parse(rk); if(!Array.isArray(ak)) return;
-              var na=ak.filter(function(r){ return low(r.folder||r.id||r.reciter||'')!==lf; });
-              localStorage.setItem(k, JSON.stringify(na));
-            }catch(e){}
-          });
-          if(isBase){
-            var del=getDeletedFolders(); if(del.indexOf(lf)===-1){ del.push(lf); localStorage.setItem('quran_reciters_deleted', JSON.stringify(del)); }
-          }
-          try{
-            var curDef=low(localStorage.getItem('quran_reciter_default')||'');
-            if(curDef===lf){ localStorage.setItem('quran_reciter_default','addel'); if(window.LuxPill && window.LuxPill.selectReciter){ try{ window.LuxPill.selectReciter('addel','عادل الكربلائي'); }catch(e){} } }
-          }catch(e){}
-        }catch(e){}
-        try{ render(); }catch(e){}
-        try{ if(window.LuxPill && window.LuxPill.init){ } }catch(e){}
-        try{ if(window.showToast) showToast('تم حذف '+origFolder+' نهائياً \u2715'); else alert('تم حذف '+origFolder+' نهائياً \u2715'); }catch(e){}
-      };
-      tx.onerror=function(){ alert('خطأ حذف'); };
-    }).catch(function(e){ alert('خطأ: '+e.message); });
+    try{ if(window.QuranAudioStorage && window.QuranAudioStorage.deleteFolder) window.QuranAudioStorage.deleteFolder(lf); }catch(e){}
+    try{ updateCount(origFolder); }catch(e){}
+    if(!removeFromList){
+      try{ render(); }catch(e){}
+      try{ if(window.showToast) showToast('تم حذف تحميلات '+origFolder); else alert('تم حذف التحميلات'); }catch(e){}
+      return;
+    }
+    try{
+      ['quran_reciters_custom','reciters','quran_reciters','audio_reciters','mushaf_reciters'].forEach(function(k){
+        try{ var rk=localStorage.getItem(k); if(!rk) return; var ak=JSON.parse(rk); if(!Array.isArray(ak)) return; var na=ak.filter(function(r){ return low(r.folder||r.id||r.reciter||'')!==lf; }); localStorage.setItem(k, JSON.stringify(na)); }catch(e){}
+      });
+      if(isBase){ var del=getDeletedFolders(); if(del.indexOf(lf)===-1){ del.push(lf); localStorage.setItem('quran_reciters_deleted', JSON.stringify(del)); } }
+      try{ var curDef=low(localStorage.getItem('quran_reciter_default')||''); if(curDef===lf){ localStorage.setItem('quran_reciter_default','addel'); if(window.LuxPill && window.LuxPill.selectReciter){ try{ window.LuxPill.selectReciter('addel','عادل الكربلائي'); }catch(e){} } } }catch(e){}
+    }catch(e){}
+    try{ render(); }catch(e){}
+    try{ if(window.showToast) showToast('تم حذف '+origFolder+' نهائياً \u2715'); else alert('تم حذف '+origFolder+' نهائياً \u2715'); }catch(e){}
   }
   function addCustom(){
     var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
