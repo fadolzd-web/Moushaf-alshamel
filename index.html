@@ -17318,13 +17318,30 @@ window.QuranAudioStorage = (function(){
   var audioPreview=null; var isDownloading=false; var isPaused=false; var downloadPaused=false; var currentDownloadInfo=null; var downloadQueue=[]; var failedList=[];
 
   function fetchAudioBlob(url){ return new Promise(function(resolve, reject){
+    // تحويل واحد لكل أشكال رد CapacitorHttp: ArrayBuffer / Uint8Array / base64 string / data: URL
+    function toBlob(d){
+      try{
+        if(!d) return null;
+        if(d instanceof Blob) return d;
+        if(d instanceof ArrayBuffer) return new Blob([d], {type:'audio/mpeg'});
+        if(d instanceof Uint8Array) return new Blob([d], {type:'audio/mpeg'});
+        if(d && d.data) return toBlob(d.data);
+        if(typeof d==='string'){
+          var s=d.trim(); if(!s) return null;
+          if(s.indexOf('data:')===0){ var c=s.indexOf(','); if(c!==-1) s=s.slice(c+1); }
+          var bin=atob(s), len=bin.length, bytes=new Uint8Array(len);
+          for(var i=0;i<len;i++) bytes[i]=bin.charCodeAt(i);
+          return new Blob([bytes], {type:'audio/mpeg'});
+        }
+      }catch(e){ return null; }
+      return null;
+    }
     function viaFetch(){ fetch(url, {cache:'force-cache'}).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.blob(); }).then(function(b){ if(b.size>800) resolve(b); else reject(new Error('صغير')); }).catch(function(e){ reject(e); }); }
     try{
       var cap=(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) ? window.Capacitor.Plugins.CapacitorHttp : null;
       if(cap && cap.get){
         cap.get({url:url, responseType:'arraybuffer'}).then(function(res){
-          var d=res && res.data; var b=null;
-          try{ if(d instanceof ArrayBuffer) b=new Blob([d], {type:'audio/mpeg'}); else if(d instanceof Uint8Array) b=new Blob([d], {type:'audio/mpeg'}); }catch(e){}
+          var b=toBlob(res && res.data);
           if(b && b.size>800) resolve(b); else viaFetch();
         }).catch(function(){ viaFetch(); });
         return;
@@ -17512,15 +17529,16 @@ window.QuranAudioStorage = (function(){
       Promise.all(batch.map(function(item){
         currentDownloadInfo.text=label; currentDownloadInfo.detail=SN[item.s]+' آية '+item.a+' - '+(done+1)+'/'+total; currentDownloadInfo.done=done; showCurrentDownload(currentDownloadInfo);
         var url=getAudioUrl(folder,item.s,item.a);
+        // سلسلة واحدة نظيفة: جيب -> احفظ -> عدّ نجاح. أي خطأ بأي مرحلة = فشل واحد فقط، مش مرتين.
         return fetchAudioBlob(url).then(function(blob){
           totalSize+=blob.size;
-          return window.QuranAudioStorage.save(folder, item.s, item.a, blob).then(function(){
-            done++; currentDownloadInfo.done=done; if(progressBar){ progressBar.style.width=Math.round(done/total*100)+'%'; } if(countEl) countEl.textContent=done+'/'+total; showCurrentDownload(currentDownloadInfo); resolve();
-          }).catch(function(){ failedList.push(item); done++; resolve(); });        }).catch(function(err){
+          return window.QuranAudioStorage.save(folder, item.s, item.a, blob);
+        }).then(function(){
+          done++; currentDownloadInfo.done=done; if(progressBar){ progressBar.style.width=Math.round(done/total*100)+'%'; } if(countEl) countEl.textContent=done+'/'+total; showCurrentDownload(currentDownloadInfo);
+        }).catch(function(err){
           failedList.push(item); done++;
-          currentDownloadInfo.detail='فشل: '+SN[item.s]+' '+item.a+' - '+err.message;
+          currentDownloadInfo.detail='فشل: '+SN[item.s]+' '+item.a+' - '+(err && err.message ? err.message : err);
           showCurrentDownload(currentDownloadInfo);
-          return Promise.resolve();
         });
       })).then(function(){ requestAnimationFrame(processQueue); });
     }
