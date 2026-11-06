@@ -17355,36 +17355,109 @@ window.QuranAudioStorage = (function(){
     var html='';
     // هيدر نظيف مرتب - بدون 0MB/10GB اللي ما بيشتغل
     html+='<div class="pro-card" style="background:rgba(255,255,255,0.92);padding:12px;border-radius:16px;margin-bottom:12px;border:1px solid rgba(0,0,0,0.06)">';
-    html+='<div style="display:flex;gap:8px;margin-bottom:10px"><input id="pro-search" placeholder="🔍 بحث قارئ..." style="flex:1;padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,0.25);font-size:12px;background:rgba(255,255,255,0.9)"><button class="pro-btn" id="pro-add-custom" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:12px">+ قارئ</button></div>';
-    html+='<div style="display:flex;gap:8px"><button class="pro-btn" id="pro-export-list" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">📤 تصدير القائمة</button><button class="pro-btn" id="pro-import-list" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">📥 استيراد</button></div>';
+    html+='<div style="display:flex;gap:8px;margin-bottom:10px"><input id="pro-search" placeholder="🔍 بحث قارئ..." style="flex:1;padding:8px 14px;border-radius:999px;border:1px solid rgba(212,175,55,0.25);font-size:12px;background:rgba(255,255,255,0.9)"><button type="button" class="pro-btn" id="pro-audio-settings-toggle" style="padding:8px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:14px">⚙️</button></div>';
+    html+='<div id="pro-audio-secondary" style="display:none;gap:8px;margin-bottom:10px;flex-wrap:wrap"><button type="button" class="pro-btn" id="pro-add-custom" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">+ قارئ</button><button type="button" class="pro-btn" id="pro-wifi-toggle" style="flex:1.8;padding:8px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.1);font-size:11px;white-space:nowrap">📶 WiFi + 📱 بيانات</button><button type="button" class="pro-btn" id="pro-export-list" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">📤 تصدير</button><button type="button" class="pro-btn" id="pro-import-list" style="flex:1;padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">📥 استيراد</button></div>';
     // منطقة التحميل النشط - فيها إيقاف ومتابعة ووايفاي مرتبة
-    html+='<div id="pro-current-dl" style="background:linear-gradient(135deg, rgba(212,175,55,0.12), rgba(15,61,46,0.08));border:1.5px solid rgba(212,175,55,0.3);border-radius:14px;padding:12px;margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:12px" id="pro-current-dl-title">التحميل</b><span id="pro-current-dl-text" style="font-size:11px">لا يوجد تحميل</span></div><div id="pro-current-dl-progress-wrap" style="height:7px;background:rgba(0,0,0,0.1);border-radius:999px;overflow:hidden;margin-bottom:8px;display:none"><div id="pro-current-dl-progress" style="height:100%;background:linear-gradient(90deg,#D4AF37,#0F3D2E);width:0%;transition:width 0.3s"></div></div><div id="pro-current-dl-detail" style="font-size:11px;opacity:0.7;margin-bottom:10px;display:none"></div><div id="pro-current-dl-controls" style="display:flex;gap:8px;flex-wrap:wrap"><button class="pro-btn" id="pro-pause-btn" style="flex:1;padding:8px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.1);font-size:11px;display:none">⏸ إيقاف</button><button class="pro-btn" id="pro-resume-btn" style="flex:1;padding:8px;border-radius:10px;background:#0F3D2E;color:#fff;border:none;font-size:11px;display:none">▶ متابعة</button><button class="pro-btn" id="pro-cancel-btn" style="flex:1;padding:8px;border-radius:10px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#DC2626;font-size:11px;display:none">✕ إلغاء</button><button class="pro-btn" id="pro-wifi-toggle" style="padding:8px 12px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.1);font-size:11px">📶 WiFi فقط</button></div></div>';
+    html+='<div id="pro-current-dl" style="display:none;background:linear-gradient(135deg, rgba(212,175,55,0.12), rgba(15,61,46,0.08));border:1.5px solid rgba(212,175,55,0.3);border-radius:14px;padding:12px;margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:12px" id="pro-current-dl-title">التحميل</b><span style="display:flex;gap:6px;align-items:center"><span id="pro-current-dl-net" style="display:none;font-size:10px;padding:3px 8px;border-radius:999px;white-space:nowrap"></span><span id="pro-current-dl-text" style="font-size:11px"></span></span></div><div id="pro-current-dl-progress-wrap" style="height:7px;background:rgba(0,0,0,0.1);border-radius:999px;overflow:hidden;margin-bottom:8px;display:none"><div id="pro-current-dl-progress" style="height:100%;background:linear-gradient(90deg,#D4AF37,#0F3D2E);width:0%;transition:width 0.3s"></div></div><div id="pro-current-dl-detail" style="font-size:11px;opacity:0.7;margin-bottom:10px;display:none"></div><div id="pro-current-dl-controls" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="pro-btn" id="pro-pause-btn" style="flex:1;padding:8px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.1);font-size:11px;display:none">⏸ إيقاف</button><button type="button" class="pro-btn" id="pro-resume-btn" style="flex:1;padding:8px;border-radius:10px;background:#0F3D2E;color:#fff;border:none;font-size:11px;display:none">▶ متابعة</button><button type="button" class="pro-btn" id="pro-cancel-btn" style="flex:1;padding:8px;border-radius:10px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#DC2626;font-size:11px;display:none">✕ إلغاء</button></div></div>';
     html+='</div>';
     reciters.forEach(function(r){
       var isCustom=!!r.custom;
       html+='<div class="pro-card pro-reciter-card" data-folder="'+r.folder+'" data-name="'+r.name.toLowerCase()+'" data-downloaded="0" style="background:rgba(255,255,255,0.92);border-radius:18px;padding:14px;margin-bottom:12px;border:1.5px solid rgba(0,0,0,0.06)"><div style="display:flex;align-items:center;gap:12px">';
-      html+='<div class="pro-av" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0F3D2E,#D4AF37);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px">'+(r.name.charAt(0)||'ق')+'</div><div style="flex:1;min-width:0"><b style="font-size:13px;display:block">'+r.name+'</b><div style="font-size:11px;opacity:0.6"><span class="pro-count" data-folder="'+r.folder+'">...</span></div><div style="height:5px;background:rgba(0,0,0,0.08);border-radius:999px;margin-top:8px;overflow:hidden"><div class="pro-progress-fill" id="pro-progress-'+r.folder+'" style="height:100%;background:#0F3D2E;width:0%;transition:width 0.3s"></div></div><div class="pro-prev-list" id="pro-prev-'+r.folder+'" style="font-size:11px;opacity:0.6;margin-top:6px"></div></div></div>';
-      // أزرار مرتبة - 3 أسطر فقط حسب الخطة
-      html+='<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">';
-      html+='<button class="pro-btn pro-preview" data-folder="'+r.folder+'" style="width:100%;padding:11px;background:#fff;border:1.5px solid rgba(0,0,0,0.08);border-radius:12px;font-size:12px;font-weight:500">▶ معاينة 5ث</button>';
-      html+='<div style="display:flex;gap:8px"><button class="pro-btn pro-dl-surah" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📖 سورة</button><button class="pro-btn pro-dl-juz" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📑 جزء</button><button class="pro-btn pro-dl-full" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📚 كامل</button></div>';
-      html+='<button class="pro-btn del pro-del" data-folder="'+r.folder+'" style="width:100%;padding:10px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:12px;font-size:12px;color:#DC2626">✕ حذف</button>';
-      if(isCustom) html+='<button class="pro-btn pro-edit" data-folder="'+r.folder+'" style="width:100%;padding:9px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:12px;font-size:11px">✏ تعديل</button>';
+      // سطر واحد: دائرة تشغيل صافية بلا حرف + الاسم + زر إعدادات. الحرف كان تكراراً للاسم، فانشال.
+      html+='<button type="button" class="pro-btn pro-preview pro-av" data-folder="'+r.folder+'" style="width:44px;height:44px;min-width:44px;border-radius:50%;background:linear-gradient(135deg,#0F3D2E,#D4AF37);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;border:none;cursor:pointer;padding:0">▶</button><div style="flex:1;min-width:0"><b style="font-size:13px;display:block">'+r.name+'</b><div style="font-size:11px;opacity:0.6"><span class="pro-count" data-folder="'+r.folder+'">...</span></div><div style="height:5px;background:rgba(0,0,0,0.08);border-radius:999px;margin-top:8px;overflow:hidden"><div class="pro-progress-fill" id="pro-progress-'+r.folder+'" style="height:100%;background:#0F3D2E;width:0%;transition:width 0.3s"></div></div><div class="pro-prev-list" id="pro-prev-'+r.folder+'" style="font-size:11px;opacity:0.6;margin-top:6px"></div></div><button type="button" class="pro-btn pro-reciter-settings" data-folder="'+r.folder+'" style="width:32px;height:32px;min-width:32px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:14px;cursor:pointer;padding:0">⚙️</button></div>';
+      // خيارات القارئ: مخفية افتراضياً، بتفتح بس لهاد القارئ. سطر واحد فيه سورة / جزء / كامل / حذف / تعديل (للمخصص).
+      html+='<div class="pro-reciter-options" data-folder="'+r.folder+'" style="display:none;margin-top:12px;gap:8px"><button type="button" class="pro-btn pro-dl-surah" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📖 سورة</button><button type="button" class="pro-btn pro-dl-juz" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📑 جزء</button><button type="button" class="pro-btn pro-dl-full" data-folder="'+r.folder+'" style="flex:1;padding:11px;background:#fff;border:1.5px solid rgba(212,175,55,0.3);border-radius:12px;font-size:12px">📚 كامل</button><button type="button" class="pro-btn del pro-del" data-folder="'+r.folder+'" style="width:40px;min-width:40px;padding:11px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:12px;font-size:12px;color:#DC2626">✖️</button>';
+      if(isCustom) html+='<button type="button" class="pro-btn pro-edit" data-folder="'+r.folder+'" style="width:40px;min-width:40px;padding:11px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:12px;font-size:12px">✏️</button>';
       html+='</div></div>';
     });
     root.innerHTML=html; attachEvents(); reciters.forEach(function(r){ updateCount(r.folder); });
     if(currentDownloadInfo){ showCurrentDownload(currentDownloadInfo); }
     updateWifiBtn();
   }
-  function updateWifiBtn(){
-    var wifiBtn=document.getElementById('pro-wifi-toggle'); var wifiOnly=localStorage.getItem('quran_wifi_only')==='1';
-    if(wifiBtn){ wifiBtn.textContent=wifiOnly?'📶 WiFi ✓':'📶 WiFi فقط'; wifiBtn.style.background=wifiOnly?'#0F3D2E':''; wifiBtn.style.color=wifiOnly?'#fff':''; }
+  // v38 - نظام WiFi واحد بمكان واحد. 3 حالات (مسموح الكل / تحذير / WiFi فقط) + كشف شبكة عبر Capacitor Network أولاً، ثم navigator.connection.
+  // ترحيل نظيف لمرة واحدة: المفتاح القديم quran_wifi_only (1) كان يعني تحذير، فيتحوّل لـ warn وبينحذف القديم. ما بيضل مفتاحين شغالين.
+  function getWifiMode(){
+    try{
+      var m=localStorage.getItem('quran_wifi_mode');
+      if(m==='off'||m==='warn'||m==='block') return m;
+      var old=localStorage.getItem('quran_wifi_only');
+      if(old!==null){ try{ localStorage.removeItem('quran_wifi_only'); }catch(e){} var mapped=(old==='1'?'warn':'off'); try{ localStorage.setItem('quran_wifi_mode', mapped); }catch(e){} return mapped; }
+    }catch(e){}
+    return 'off';
   }
+  function setWifiMode(m){ try{ localStorage.setItem('quran_wifi_mode', m); }catch(e){} updateWifiBtn(); }
+  function updateWifiBtn(){
+    var wifiBtn=document.getElementById('pro-wifi-toggle'); if(!wifiBtn) return;
+    var mode=getWifiMode();
+    wifiBtn.style.whiteSpace='nowrap';
+    if(mode==='warn'){ wifiBtn.textContent='📶 WiFi + ⚠️ بيانات'; wifiBtn.style.background='rgba(212,175,55,0.18)'; wifiBtn.style.color='#7A5B00'; wifiBtn.style.border='1px solid rgba(212,175,55,0.4)'; }
+    else if(mode==='block'){ wifiBtn.textContent='🔒 WiFi فقط'; wifiBtn.style.background='#0F3D2E'; wifiBtn.style.color='#fff'; wifiBtn.style.border='1px solid #0F3D2E'; }
+    else { wifiBtn.textContent='📶 WiFi + 📱 بيانات'; wifiBtn.style.background='#fff'; wifiBtn.style.color=''; wifiBtn.style.border='1px solid rgba(0,0,0,0.1)'; }
+  }
+  function cycleWifiMode(){ var cur=getWifiMode(); var next=(cur==='off'?'warn':(cur==='warn'?'block':'off')); setWifiMode(next); }
+  function getNetworkType(){
+    return new Promise(function(resolve){
+      try{
+        var net=(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Network) ? window.Capacitor.Plugins.Network : null;
+        if(net && net.getStatus){ net.getStatus().then(function(st){ var t=(st && st.connectionType)||''; if(t==='wifi') resolve('wifi'); else if(t==='cellular') resolve('cellular'); else if(t==='none') resolve('none'); else resolve('unknown'); }).catch(function(){ resolve(getNetworkTypeFallback()); }); return; }
+      }catch(e){}
+      resolve(getNetworkTypeFallback());
+    });
+  }
+  function getNetworkTypeFallback(){
+    try{ var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection; if(conn && conn.type){ if(conn.type==='wifi') return 'wifi'; if(conn.type==='cellular'||conn.type==='4g'||conn.type==='3g'||conn.type==='2g') return 'cellular'; if(conn.type==='none') return 'none'; } }catch(e){}
+    return 'unknown';
+  }
+  // حبّة الشبكة: دالة واحدة ترسمها بكل مكان. لا منطق تحميل هنا، بس عرض.
+  function updateNetPill(t){
+    var pill=document.getElementById('pro-current-dl-net'); if(!pill) return;
+    if(t==='wifi'){ pill.textContent='📶 WiFi'; pill.style.background='rgba(34,197,94,0.15)'; pill.style.color='#166534'; }
+    else if(t==='cellular'){ pill.textContent='📱 بيانات'; pill.style.background='rgba(249,115,22,0.15)'; pill.style.color='#9A3412'; }
+    else if(t==='none'){ pill.textContent='🚫 بلا شبكة'; pill.style.background='rgba(0,0,0,0.06)'; pill.style.color='#555'; }
+    else { pill.textContent='❓ شبكة'; pill.style.background='rgba(0,0,0,0.06)'; pill.style.color='#555'; }
+    pill.style.display='inline-block';
+  }
+  function refreshNetPill(){ try{ getNetworkType().then(function(t){ updateNetPill(t); }).catch(function(){}); }catch(e){} }
+  function checkWifiBeforeStart(){
+    return new Promise(function(resolve){
+      var mode=getWifiMode(); if(mode==='off'){ resolve(true); return; }
+      getNetworkType().then(function(t){
+        if(t!=='cellular'){ resolve(true); return; }
+        if(mode==='block'){ alert('التحميل موقّف: إنت على بيانات والوضع "WiFi منع" — وصّل على WiFi أو غيّر الوضع من ⚙️'); resolve(false); return; }
+        // warn
+        resolve(!!confirm('إنت على بيانات والوضع "WiFi تحذير" — تريد المتابعة على البيانات؟'));
+      }).catch(function(){ resolve(true); });
+    });
+  }
+  function checkWifiMidDownload(){
+    return new Promise(function(resolve){
+      if(!isDownloading || downloadQueue.length===0){ resolve(true); return; }
+      var mode=getWifiMode();
+      getNetworkType().then(function(t){
+        updateNetPill(t);
+        if(mode==='off' || wifiWarnAccepted){ resolve(true); return; }
+        if(t!=='cellular'){ resolve(true); return; }
+        // انقطع الـ WiFi بنص التحميل: إيقاف مؤقت، مش إلغاء. بيكمّل من وين وقف.
+        wifiPaused=true; downloadPaused=true;
+        if(currentDownloadInfo){ currentDownloadInfo.detail=(mode==='block' ? 'انقطع الـ WiFi — متوقف مؤقتاً. وصّل على WiFi ثم اضغط متابعة' : 'انتقلت لبيانات — متوقف مؤقتاً. اضغط متابعة للمتابعة على البيانات أو وصّل على WiFi'); showCurrentDownload(currentDownloadInfo); }
+        resolve(false);
+      }).catch(function(){ resolve(true); });
+    });
+  }
+  // مستمع شبكة واحد، بيتسجّل مرة واحدة فقط (مش بكل render): إذا قلبت على بيانات بنص تحميل، بيوقف مؤقتاً فوراً.
+  (function initNetworkListener(){
+    try{
+      var net=(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Network) ? window.Capacitor.Plugins.Network : null;
+      if(net && net.addListener && !window.__proAudioNetworkHooked){ window.__proAudioNetworkHooked=true; net.addListener('networkStatusChange', function(st){ try{ if(!isDownloading || !currentDownloadInfo) return; var t=(st && st.connectionType==='wifi') ? 'wifi' : (st && st.connectionType==='cellular') ? 'cellular' : (st && st.connectionType==='none') ? 'none' : 'unknown'; updateNetPill(t); if(downloadPaused) return; if(getWifiMode()==='off' || wifiWarnAccepted) return; if(t==='cellular'){ wifiPaused=true; downloadPaused=true; currentDownloadInfo.detail='انقطع الـ WiFi — متوقف مؤقتاً. وصّل على WiFi ثم اضغط متابعة'; showCurrentDownload(currentDownloadInfo); } }catch(e){} }); }
+    }catch(e){}
+  })();
   function showCurrentDownload(info){
     var txt=document.getElementById('pro-current-dl-text'); var prog=document.getElementById('pro-current-dl-progress'); var det=document.getElementById('pro-current-dl-detail'); var wrap=document.getElementById('pro-current-dl-progress-wrap'); var title=document.getElementById('pro-current-dl-title');
     var pauseBtn=document.getElementById('pro-pause-btn'); var resumeBtn=document.getElementById('pro-resume-btn'); var cancelBtn=document.getElementById('pro-cancel-btn');
     if(!txt) return;
+    var box=document.getElementById('pro-current-dl'); if(box) box.style.display='block';
     if(title) title.textContent='جاري التحميل';
+    refreshNetPill();
     txt.textContent=info.text+' ('+info.done+'/'+info.total+')';
     if(wrap) wrap.style.display='block';
     if(prog) prog.style.width=Math.round(info.done/info.total*100)+'%';
@@ -17396,7 +17469,7 @@ window.QuranAudioStorage = (function(){
   function hideCurrentDownload(){
     var txt=document.getElementById('pro-current-dl-text'); var prog=document.getElementById('pro-current-dl-progress'); var det=document.getElementById('pro-current-dl-detail'); var wrap=document.getElementById('pro-current-dl-progress-wrap'); var title=document.getElementById('pro-current-dl-title');
     var pauseBtn=document.getElementById('pro-pause-btn'); var resumeBtn=document.getElementById('pro-resume-btn'); var cancelBtn=document.getElementById('pro-cancel-btn');
-    if(txt) txt.textContent='لا يوجد تحميل';
+    var box=document.getElementById('pro-current-dl'); if(box) box.style.display='none';
     if(title) title.textContent='التحميل';
     if(wrap) wrap.style.display='none';
     if(prog) prog.style.width='0%';
@@ -17412,26 +17485,54 @@ window.QuranAudioStorage = (function(){
     var ex=document.getElementById('pro-export-list'); if(ex) ex.onclick=exportList;
     var im=document.getElementById('pro-import-list'); if(im) im.onclick=importList;
     var pauseBtn=document.getElementById('pro-pause-btn'); if(pauseBtn) pauseBtn.onclick=function(){ downloadPaused=true; isPaused=true; var resumeBtn=document.getElementById('pro-resume-btn'); if(resumeBtn) resumeBtn.style.display=''; pauseBtn.style.display='none'; };
-    var resumeBtn=document.getElementById('pro-resume-btn'); if(resumeBtn) resumeBtn.onclick=function(){ downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue); };
-    var cancelBtn=document.getElementById('pro-cancel-btn'); if(cancelBtn) cancelBtn.onclick=function(){ isPaused=true; downloadPaused=false; isDownloading=false; hideCurrentDownload(); downloadQueue=[]; alert('تم الإلغاء'); };
-    var wifiBtn=document.getElementById('pro-wifi-toggle'); if(wifiBtn) wifiBtn.onclick=function(){ var cur=localStorage.getItem('quran_wifi_only')==='1'; var newVal=cur?'0':'1'; localStorage.setItem('quran_wifi_only', newVal); updateWifiBtn(); };
+    var resumeBtn=document.getElementById('pro-resume-btn'); if(resumeBtn) resumeBtn.onclick=function(){
+      // متابعة واعية بالواي فاي: إذا الإيقاف كان بسبب انقطاع WiFi، لازم نفحص قبل ما نكمّل.
+      if(wifiPaused){
+        getNetworkType().then(function(t){
+          var mode=getWifiMode();
+          if(t==='cellular' && mode==='block'){ alert('لسا على بيانات والوضع "WiFi منع" — وصّل على WiFi أولاً'); return; }
+          if(t==='cellular' && mode==='warn'){ if(!confirm('إنت على بيانات — تريد المتابعة على البيانات؟')) return; wifiWarnAccepted=true; }
+          wifiPaused=false; downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue);
+        });
+        return;
+      }
+      downloadPaused=false; isPaused=false; resumeBtn.style.display='none'; if(pauseBtn) pauseBtn.style.display=''; if(downloadQueue.length>0) requestAnimationFrame(processQueue); };
+    var cancelBtn=document.getElementById('pro-cancel-btn'); if(cancelBtn) cancelBtn.onclick=function(){ isPaused=true; downloadPaused=false; wifiPaused=false; wifiWarnAccepted=false; isDownloading=false; hideCurrentDownload(); downloadQueue=[]; alert('تم الإلغاء'); };
+    var settingsBtn=document.getElementById('pro-audio-settings-toggle'); if(settingsBtn) settingsBtn.onclick=function(){ var sec=document.getElementById('pro-audio-secondary'); if(sec){ var open=sec.style.display==='flex'; sec.style.display=open?'none':'flex'; } };
+    var wifiBtn=document.getElementById('pro-wifi-toggle'); if(wifiBtn) wifiBtn.onclick=function(){ cycleWifiMode(); };
     document.querySelectorAll('.pro-preview').forEach(function(btn){ btn.onclick=function(){ previewReciter(btn.getAttribute('data-folder')); }; });
+    document.querySelectorAll('.pro-reciter-settings').forEach(function(btn){ btn.onclick=function(){ var f=btn.getAttribute('data-folder'); var target=document.querySelector('.pro-reciter-options[data-folder="'+f+'"]'); if(!target) return; var wasOpen=target.style.display==='flex'; document.querySelectorAll('.pro-reciter-options').forEach(function(o){ o.style.display='none'; }); if(!wasOpen) target.style.display='flex'; }; });
     document.querySelectorAll('.pro-dl-surah').forEach(function(btn){ btn.onclick=function(){ showSurahModal(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-dl-juz').forEach(function(btn){ btn.onclick=function(){ showJuzModal(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-dl-full').forEach(function(btn){ btn.onclick=function(){ if(confirm('تحميل المصحف كامل 6236 آية؟')) downloadFull(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-del').forEach(function(btn){ btn.onclick=function(){ deleteReciter(btn.getAttribute('data-folder')); }; });
     document.querySelectorAll('.pro-edit').forEach(function(btn){ btn.onclick=function(){ editCustom(btn.getAttribute('data-folder')); }; });
   }
+  var previewToken=0; var previewBlobUrl=null;
   function previewReciter(folder){
-    if(audioPreview){ try{ audioPreview.pause(); }catch(e){} }
-    var url=getAudioUrl(folder,1,1); audioPreview=new Audio(url); audioPreview.volume=0.8;
     var btn=document.querySelector('.pro-preview[data-folder="'+folder+'"]');
-    var oldText=btn?btn.textContent:'';
-    function onEnd(){ if(btn) btn.textContent=oldText; }
-    if(btn) btn.textContent='⏸ إيقاف';
-    audioPreview.onended=onEnd;
-    audioPreview.play().catch(function(){ onEnd(); });
-    audioPreview.ontimeupdate=function(){ if(audioPreview.currentTime>=5){ try{ audioPreview.pause(); }catch(e){} onEnd(); audioPreview.ontimeupdate=null; } };
+    function resetAll(){ document.querySelectorAll('.pro-preview').forEach(function(b){ b.textContent='▶'; }); }
+    function stopPreview(){
+      if(audioPreview){ try{ audioPreview.pause(); }catch(e){} audioPreview=null; }
+      if(previewBlobUrl){ try{ URL.revokeObjectURL(previewBlobUrl); }catch(e){} previewBlobUrl=null; }
+      previewFolder=null; resetAll();
+    }
+    // كبسة على نفس القارئ وهو شغّال أو عم يتحمّل = إيقاف. كبسة على قارئ تاني = إيقاف الأول وتشغيل التاني.
+    if(previewFolder===folder){ stopPreview(); return; }
+    stopPreview();
+    previewToken++; var myToken=previewToken; previewFolder=folder;
+    if(btn) btn.textContent='⏸';
+    var url=getAudioUrl(folder,1,1);
+    // نفس طريق التحميل المجرب: جيب الصوت كـ Blob ثم شغّلو من Blob URL، مش Audio مباشرة على الرابط.
+    fetchAudioBlob(url).then(function(blob){
+      if(myToken!==previewToken) return;
+      previewBlobUrl=URL.createObjectURL(blob);
+      audioPreview=new Audio(previewBlobUrl); audioPreview.volume=0.8;
+      function onEnd(){ if(myToken===previewToken) stopPreview(); }
+      audioPreview.onended=onEnd;
+      audioPreview.play().catch(function(){ onEnd(); });
+      audioPreview.ontimeupdate=function(){ if(audioPreview && audioPreview.currentTime>=5){ try{ audioPreview.pause(); }catch(e){} onEnd(); if(audioPreview) audioPreview.ontimeupdate=null; } };
+    }).catch(function(){ if(myToken===previewToken) stopPreview(); });
   }
   function updateCount(folder){
     try{
@@ -17450,7 +17551,7 @@ window.QuranAudioStorage = (function(){
   function showSurahModal(folder){
     var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
     var card=document.createElement('div'); card.style.cssText='background:#fff;border-radius:20px;max-width:400px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)';
-    card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">📖 اختيار سورة - '+folder+'</b><button id="pro-modal-close" style="width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:16px">✕</button></div><div style="padding:10px"><input id="pro-surah-search" placeholder="🔍 بحث سورة..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);font-size:12px"><div style="display:flex;gap:8px;margin-top:10px"><button id="pro-select-all" style="flex:1;padding:8px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">تحديد الكل</button><span id="pro-virtual-info" style="font-size:11px;opacity:0.6;padding:8px"></span></div></div><div id="pro-surah-list" style="flex:1;overflow-y:auto;padding:0 10px 10px;min-height:250px"></div><div style="padding:14px;border-top:1px solid rgba(0,0,0,0.08);display:flex;gap:10px"><button id="pro-surah-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:12px">إلغاء</button><button id="pro-surah-download" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none;font-size:12px;font-weight:600">تحميل المحدد</button></div>';
+    card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">📖 اختيار سورة - '+folder+'</b><button type="button" id="pro-modal-close" style="width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:16px">✕</button></div><div style="padding:10px"><input id="pro-surah-search" placeholder="🔍 بحث سورة..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);font-size:12px"><div style="display:flex;gap:8px;margin-top:10px"><button type="button" id="pro-select-all" style="flex:1;padding:8px;border-radius:999px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:11px">تحديد الكل</button><span id="pro-virtual-info" style="font-size:11px;opacity:0.6;padding:8px"></span></div></div><div id="pro-surah-list" style="flex:1;overflow-y:auto;padding:0 10px 10px;min-height:250px"></div><div style="padding:14px;border-top:1px solid rgba(0,0,0,0.08);display:flex;gap:10px"><button type="button" id="pro-surah-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff;font-size:12px">إلغاء</button><button type="button" id="pro-surah-download" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none;font-size:12px;font-weight:600">تحميل المحدد</button></div>';
     modal.appendChild(card); document.body.appendChild(modal);
     var allSurahs=[]; for(var i=1;i<=114;i++) allSurahs.push({id:i,name:SN[i],ayas:SA[i]});
     var filtered=allSurahs.slice(); var selected={}; var pageSize=20; var currentPage=0;
@@ -17493,9 +17594,9 @@ window.QuranAudioStorage = (function(){
   function showJuzModal(folder){
     var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
     var card=document.createElement('div'); card.style.cssText='background:#fff;border-radius:20px;max-width:360px;width:100%;max-height:80vh;display:flex;flex-direction:column;overflow:hidden';
-    var html='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center"><b>📑 اختيار جزء - '+folder+'</b><button id="pro-modal-close" style="width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff">✕</button></div><div style="flex:1;overflow-y:auto;padding:10px"><div id="pro-juz-list">';
+    var html='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center"><b>📑 اختيار جزء - '+folder+'</b><button type="button" id="pro-modal-close" style="width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff">✕</button></div><div style="flex:1;overflow-y:auto;padding:10px"><div id="pro-juz-list">';
     for(var j=1;j<=30;j++){ html+='<label style="display:flex;justify-content:space-between;padding:11px 14px;border-radius:12px;margin-bottom:5px;background:rgba(0,0,0,0.03);cursor:pointer"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="pro-juz-cb" value="'+j+'"><span>الجزء '+j+'</span></span></label>'; }
-    html+='</div></div><div style="padding:14px;display:flex;gap:10px"><button id="pro-juz-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">إلغاء</button><button id="pro-juz-download" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">تحميل</button></div>';
+    html+='</div></div><div style="padding:14px;display:flex;gap:10px"><button type="button" id="pro-juz-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">إلغاء</button><button type="button" id="pro-juz-download" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">تحميل</button></div>';
     card.innerHTML=html; modal.appendChild(card); document.body.appendChild(modal);
     card.querySelector('#pro-modal-close').onclick=function(){ modal.remove(); }; card.querySelector('#pro-juz-cancel').onclick=function(){ modal.remove(); };
     card.querySelector('#pro-juz-download').onclick=function(){ var selected=[]; modal.querySelectorAll('.pro-juz-cb:checked').forEach(function(cb){ selected.push(parseInt(cb.value)); }); if(selected.length===0){ alert('اختر جزء'); return; } modal.remove(); downloadJuzs(folder,selected); };
@@ -17508,9 +17609,9 @@ window.QuranAudioStorage = (function(){
   function downloadFull(folder){ var ayahs=[]; for(var s=1;s<=114;s++){ for(var a=1;a<=SA[s];a++) ayahs.push({s:s,a:a}); } downloadAyahs(folder, ayahs, 'المصحف كامل', 'full', 'all'); }
   function downloadAyahs(folder, ayahs, label, type, num){
     if(isDownloading){ alert('يوجد تحميل جار - اضغط إلغاء أولا'); return; }
-    if(localStorage.getItem('quran_wifi_only')==='1'){
-      try{ var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection; if(conn && conn.type && conn.type!=='wifi' && conn.effectiveType && conn.type!=='wifi'){ if(!confirm('WiFi فقط مفعل وأنت على بيانات - تريد المتابعة؟')) return; } }catch(e){}
-    }
+    checkWifiBeforeStart().then(function(allowed){ if(!allowed) return; startDownload(); });
+    function startDownload(){
+    wifiWarnAccepted=false; wifiPaused=false;
     isDownloading=true; isPaused=false; downloadPaused=false; var total=ayahs.length; var done=0; var totalSize=0; failedList=[];
     var progressBar=document.getElementById('pro-progress-'+folder); var countEl=document.querySelector('.pro-count[data-folder="'+folder+'"]');
     downloadQueue=ayahs.slice();
@@ -17525,6 +17626,10 @@ window.QuranAudioStorage = (function(){
         isDownloading=false; hideCurrentDownload(); if(countEl) countEl.textContent=done+' آية'+(failedList.length?' ('+failedList.length+' فشل)':''); updateCount(folder); if(failedList.length>0) alert('تم مع '+failedList.length+' فشل - النت قد يكون ضعيف أو السيرفر مشغول - حاول مرة ثانية للفاشل'); else alert('تم التحميل: '+done+' آية - الحمد لله');
         return;
       }
+      // فحص WiFi قبل كل دفعة: إذا انقطع الـ WiFi، إيقاف مؤقت بدون خسارة أي آية.
+      checkWifiMidDownload().then(function(canContinue){ if(!canContinue) return; runBatch(); });
+      return;
+      function runBatch(){
       var batch=[]; for(var i=0;i<3 && downloadQueue.length>0;i++){ batch.push(downloadQueue.shift()); }
       Promise.all(batch.map(function(item){
         currentDownloadInfo.text=label; currentDownloadInfo.detail=SN[item.s]+' آية '+item.a+' - '+(done+1)+'/'+total; currentDownloadInfo.done=done; showCurrentDownload(currentDownloadInfo);
@@ -17541,7 +17646,9 @@ window.QuranAudioStorage = (function(){
           showCurrentDownload(currentDownloadInfo);
         });
       })).then(function(){ requestAnimationFrame(processQueue); });
+      } // end runBatch
     }
+    } // end startDownload
   }
   function deleteReciter(folder){
     var lf=low(folder);
@@ -17623,7 +17730,7 @@ window.QuranAudioStorage = (function(){
   function addCustom(){
     var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
     var card=document.createElement('div'); card.style.cssText='background:#fff;border-radius:20px;max-width:400px;width:100%;overflow:hidden';
-    card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08)"><b>إضافة قارئ مخصص</b><div style="display:flex;gap:8px;margin-top:10px"><button id="tab-hmomen" style="flex:1;padding:8px;border-radius:10px;background:#0F3D2E;color:#fff;border:none;font-size:13px">📁 حقيبة المؤمن</button><button id="tab-any" style="flex:1;padding:8px;border-radius:10px;background:#f0f0f0;color:#333;border:1px solid rgba(0,0,0,0.1);font-size:13px">🌐 أي موقع</button></div></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px"><input id="pro-custom-name" placeholder="اسم القارئ" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div id="hmomen-fields" style="display:flex;flex-direction:column;gap:10px"><input id="pro-custom-folder" placeholder="المجلد - مثال: addel أو rafeaalamri-tajweed" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div style="font-size:11px;opacity:0.6">سيتم: hmomen.com/.../{folder}/{SSS}{AAA}.mp3</div></div><div id="any-fields" style="display:none;flex-direction:column;gap:10px"><input id="pro-custom-url" placeholder="رابط كامل - https://everyayah.com/data/Alafasy_64kbps/{SSS}{AAA}.mp3" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div style="font-size:11px;opacity:0.6;line-height:1.4">ادعم: {SSS}=سورة 3 أرقام {AAA}=آية 3 أرقام<br>مثال: everyayah مع {SSS}{AAA}.mp3</div></div><div style="display:flex;gap:8px"><button id="pro-test-url" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">🔍 اختبار</button><span id="pro-test-result" style="font-size:11px;flex:1"></span></div></div><div style="padding:14px;display:flex;gap:10px"><button id="pro-custom-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">إلغاء</button><button id="pro-custom-save" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">حفظ</button></div>';
+    card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08)"><b>إضافة قارئ مخصص</b><div style="display:flex;gap:8px;margin-top:10px"><button type="button" id="tab-hmomen" style="flex:1;padding:8px;border-radius:10px;background:#0F3D2E;color:#fff;border:none;font-size:13px">📁 حقيبة المؤمن</button><button type="button" id="tab-any" style="flex:1;padding:8px;border-radius:10px;background:#f0f0f0;color:#333;border:1px solid rgba(0,0,0,0.1);font-size:13px">🌐 أي موقع</button></div></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px"><input id="pro-custom-name" placeholder="اسم القارئ" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div id="hmomen-fields" style="display:flex;flex-direction:column;gap:10px"><input id="pro-custom-folder" placeholder="المجلد - مثال: addel أو rafeaalamri-tajweed" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div style="font-size:11px;opacity:0.6">سيتم: hmomen.com/.../{folder}/{SSS}{AAA}.mp3</div></div><div id="any-fields" style="display:none;flex-direction:column;gap:10px"><input id="pro-custom-url" placeholder="رابط كامل - https://everyayah.com/data/Alafasy_64kbps/{SSS}{AAA}.mp3" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><div style="font-size:11px;opacity:0.6;line-height:1.4">ادعم: {SSS}=سورة 3 أرقام {AAA}=آية 3 أرقام<br>مثال: everyayah مع {SSS}{AAA}.mp3</div></div><div style="display:flex;gap:8px"><button type="button" id="pro-test-url" style="flex:1;padding:10px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">🔍 اختبار</button><span id="pro-test-result" style="font-size:11px;flex:1"></span></div></div><div style="padding:14px;display:flex;gap:10px"><button type="button" id="pro-custom-cancel" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);background:#fff">إلغاء</button><button type="button" id="pro-custom-save" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">حفظ</button></div>';
     modal.appendChild(card); document.body.appendChild(modal);
     card.querySelector('#pro-custom-cancel').onclick=function(){ modal.remove(); };
     var currentTab='hmomen';
@@ -17662,7 +17769,7 @@ window.QuranAudioStorage = (function(){
     try{ var raw=localStorage.getItem('quran_reciters_custom'); var arr=raw?JSON.parse(raw):[]; var item=arr.find(function(r){return low(r.folder)===low(folder);}); if(!item) return addCustom();
       var modal=document.createElement('div'); modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px';
       var card=document.createElement('div'); card.style.cssText='background:#fff;border-radius:20px;max-width:400px;width:100%;overflow:hidden';
-      card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08)"><b>تعديل '+folder+'</b></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px"><input id="pro-custom-name" value="'+item.name+'" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><input id="pro-custom-folder" value="'+item.folder+'" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><input id="pro-custom-url" value="'+(item.url||'')+'" placeholder="رابط" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"></div><div style="padding:14px;display:flex;gap:10px"><button id="pro-custom-cancel" style="flex:1;padding:12px;border-radius:12px;background:#fff;border:1px solid rgba(0,0,0,0.1)">إلغاء</button><button id="pro-custom-save" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">حفظ</button></div>';
+      card.innerHTML='<div style="padding:16px;border-bottom:1px solid rgba(0,0,0,0.08)"><b>تعديل '+folder+'</b></div><div style="padding:14px;display:flex;flex-direction:column;gap:10px"><input id="pro-custom-name" value="'+item.name+'" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><input id="pro-custom-folder" value="'+item.folder+'" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"><input id="pro-custom-url" value="'+(item.url||'')+'" placeholder="رابط" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,0,0,0.1)"></div><div style="padding:14px;display:flex;gap:10px"><button type="button" id="pro-custom-cancel" style="flex:1;padding:12px;border-radius:12px;background:#fff;border:1px solid rgba(0,0,0,0.1)">إلغاء</button><button type="button" id="pro-custom-save" style="flex:1;padding:12px;border-radius:12px;background:#0F3D2E;color:#fff;border:none">حفظ</button></div>';
       modal.appendChild(card); document.body.appendChild(modal);
       card.querySelector('#pro-custom-cancel').onclick=function(){ modal.remove(); };
       card.querySelector('#pro-custom-save').onclick=function(){ item.name=card.querySelector('#pro-custom-name').value.trim(); item.folder=card.querySelector('#pro-custom-folder').value.trim(); item.url=card.querySelector('#pro-custom-url').value.trim(); localStorage.setItem('quran_reciters_custom', JSON.stringify(arr)); modal.remove(); render(); };
